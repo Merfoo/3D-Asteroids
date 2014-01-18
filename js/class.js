@@ -1,6 +1,6 @@
-Inheritance_Manager = {};
+inheritanceManager = {};
 
-Inheritance_Manager.extend = function (subClass, baseClass)
+inheritanceManager.extend = function (subClass, baseClass)
 {
     function inheritance() {}
     inheritance.prototype = baseClass.prototype;
