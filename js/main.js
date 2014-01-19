@@ -5,6 +5,7 @@ var g_ship = new Ship(0, 0, 0, 1, 1, 1, 0, 0, 0);
 var g_shipTest = new Ship(0, 0, 0, 0.5, 0.5, 0.5, 0, 0, 0);
 var g_light;
 var g_camera;
+var g_small;
 
 window.onload = function(){
     var canvas = document.getElementById("canvas");
@@ -27,7 +28,8 @@ window.onload = function(){
 
         //Adding of the Arc Rotate Camera
         g_camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), g_scene);
-        BABYLON.SceneLoader.ImportMesh("", "models/scene/", "scene.babylon", g_scene, function (newMeshes) {g_ship = newMeshes[0]; g_ship.position = new BABYLON.Vector3(-10,0,0);});
+        BABYLON.SceneLoader.ImportMesh("Ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_ship = newMeshes[0]; g_ship.position = new BABYLON.Vector3(-10, 0, 0); });
+        BABYLON.SceneLoader.ImportMesh("Asteroid", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_asteroid = newMeshes[0]; g_asteroid.position = new BABYLON.Vector3(-10, -10, -10); });
         
         g_scene.activeCamera.attachControl(canvas);
 
@@ -57,11 +59,11 @@ function moveShip(ship, keyCode)
     switch(keyCode)
     {
         case g_keyboardIds.w:
-            ship.position.y += g_shipTest.vY;
+            ship.position.z += g_shipTest.vY;
             break;
             
         case g_keyboardIds.s:
-            ship.position.y -= g_shipTest.vY;
+            ship.position.z -= g_shipTest.vY;
             break;
     
         case g_keyboardIds.a:
@@ -81,7 +83,7 @@ function keyboardEvent(event)
 {
     var keyCode = event.keyCode;
     
-    if (event.type == "keydown")
+    if (event.type == "keypressed")
     {
         moveShip(g_ship, keyCode);
     }
