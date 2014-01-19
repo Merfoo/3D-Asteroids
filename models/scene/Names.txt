@@ -12,3 +12,4 @@ asteroid0_2
 asteroid0_1
 asteroid0_0
 asteroid0
+Sphere001
