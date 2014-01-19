@@ -1,8 +1,10 @@
 ﻿var g_scene;
 var g_keyboardIds = { w: 87, s: 83, a: 65, d:68 };
 var g_asteroids = new Array();
-var g_ship = Ship(0, 0, 0, 1, 1, 1, 0, 0, 0);
+var g_ship = new Ship(0, 0, 0, 1, 1, 1, 0, 0, 0);
 var g_shipTest = new Ship(0, 0, 0, 0.5, 0.5, 0.5, 0, 0, 0);
+var g_light;
+var g_camera;
 
 window.onload = function(){
     var canvas = document.getElementById("canvas");
@@ -17,7 +19,14 @@ window.onload = function(){
         var engine = new BABYLON.Engine(canvas, true);
 
         //Creating scene (in "scene.js")
-        g_scene = createScene(engine);
+        //Creation of the scene 
+        g_scene = new BABYLON.Scene(engine);
+
+        //Adding of the light on the scene
+        g_light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(10, 10, -30), g_scene);
+
+        //Adding of the Arc Rotate Camera
+        g_camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), g_scene);
         BABYLON.SceneLoader.ImportMesh("", "models/", "Spaceship.babylon", g_scene, function (newMeshes) {g_ship = newMeshes[0]; g_ship.position = new BABYLON.Vector3(-10,0,0);});
         
         g_scene.activeCamera.attachControl(canvas);
@@ -37,33 +46,6 @@ window.onload = function(){
         window.addEventListener("keyup", keyboardEvent, true);
     } 
 };
-
-﻿function createScene(engine) {
-    //Creation of the scene 
-    var scene = new BABYLON.Scene(engine);
-
-    //Adding of the light on the scene
-    var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(10, 10, -30), scene);
-
-    //Adding of the Arc Rotate Camera
-    var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), scene);
-
-    // MESHES
-    //------------
-
-    //Creation of a box
-    //(name of the box, size, scene)
-    // sdfdsfsdfg_ship = BABYLON.Mesh.CreateBox("Box", 6.0, scene);
-    
-    //Creation of a smaller box to represent the center of the scene
-    var center = BABYLON.Mesh.CreateBox("Box", 1.0, scene);
-
-
-    //Positioning the elements
-    //g_ship.position = new BABYLON.Vector3(-10,0,0);//Positionnign by a vector
-    
-    return scene;
-}
 
 function gameLoop()
 {
