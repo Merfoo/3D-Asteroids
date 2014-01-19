@@ -10,6 +10,7 @@ var g_large;
 var g_mouseX;
 var g_mouseY;
 var g_lasers = [];
+var g_maxSize = 1000;
 
 window.onload = function(){
     var canvas = document.getElementById("canvas");
@@ -51,9 +52,10 @@ window.onload = function(){
         //load models
         BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_ship = newMeshes[0]; g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0); g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); g_ship.mesh.scaling.x = .01; g_ship.mesh.scaling.y = .01; g_ship.mesh.scaling.z = .01; g_camera.setPosition(new BABYLON.Vector3(0, 0, -5))});
         BABYLON.SceneLoader.ImportMesh("asteroid0", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_small = newMeshes[0]; g_small.position = new BABYLON.Vector3(-250, -10, -10); });
-        BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_large = newMeshes[0]; g_large.position = new BABYLON.Vector3(10, 10, 250); });
-
-		
+        BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_large = newMeshes[0]; g_large.position = new BABYLON.Vector3(10, 10, 250); g_large.scaling.x = .955; g_large.scaling.y = .955; g_large.scaling.z = .955; makeAsteroid(300);});
+        //Adding of the Arc Rotate Camera
+       // g_camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), g_scene);
+       //g_scene.activeCamera.attachControl(canvas);
         // Once the scene is loaded, just register a render loop to render it
         engine.runRenderLoop(function () {
             gameLoop();
@@ -66,12 +68,37 @@ window.onload = function(){
         
         window.addEventListener("keydown", keyboardEvent, true);
         window.addEventListener("keyup", keyboardEvent, true);
-		canvas.addEventListener("mousemove", mouseEvent, true);
+	canvas.addEventListener("mousemove", mouseEvent, true);
     } 
 };
 
+function updateAsteroids()
+{
+    for(var index = 0; index < g_asteroids.length; index++)
+    {
+        g_asteroids[index].mesh.position.x += g_asteroids[index].vX;
+        g_asteroids[index].mesh.position.y += g_asteroids[index].vY;
+        g_asteroids[index].mesh.position.z += g_asteroids[index].vZ;
+        
+        if(g_asteroids[index].mesh.position.x > g_maxSize || g_asteroids[index].mesh.position.y > g_maxSize || g_asteroids[index].mesh.position.z > g_maxSize)
+        {
+            //g_asteroids[index].mesh.dispose();
+            g_asteroids.splice(index, 1);
+            makeAsteroid(1);
+        }
+        
+        else if(g_asteroids[index].mesh.position.x < -g_maxSize || g_asteroids[index].mesh.position.y < -g_maxSize || g_asteroids[index].mesh.position.z < -g_maxSize)
+        {    
+            //g_asteroids[index].mesh.dispose();
+            g_asteroids.splice(index, 1);
+            makeAsteroid(1);
+        }
+    }
+}
+
 function gameLoop()
 {
+    updateAsteroids();
     g_scene.render();
 }
 
@@ -80,7 +107,6 @@ function moveShip(ship, keyCode)
     switch(keyCode)
     {
         case g_keyboardIds.w:
-            console.log(ship.mesh.position.z + " " + g_ship.vY)
             ship.mesh.position.z += g_ship.vY;
             break;
             
@@ -163,4 +189,41 @@ function mouseEvent(event)
 	yFollow = ((canvas.height/2)-mouseY)/(canvas.height/2);
 
 	rotateShip(g_ship,thetaX, thetaY, xFollow, yFollow);
+}
+
+function makeAsteroid(amount)
+{
+    // Box with 600 x 600 x 600
+    for(var index = 0; index < amount; index++)
+    {
+        var x, y, z;
+
+        x = getRandomNumber(-300, 300);
+        y = getRandomNumber(-300, 300);
+        z = getRandomNumber(-300, 300);
+
+        var vX = getRandomNumber(-3, 3);
+        var vY = getRandomNumber(-3, 3);
+        var vZ = getRandomNumber(-3, 3);
+
+        console.log("vel: " + vX + ", " + vY + ", " + vZ);
+        console.log("pos: " + x + ", " + y + ", " + z);
+
+        var aster = new Asteroid(vX*.6, vY*.6, vZ*.6, x, y/6, z/6, g_large);
+        aster.mesh.position = new BABYLON.Vector3(x, y, z);
+        g_asteroids.push(aster);
+    }
+}
+
+// Returns random number between iMin and iMax, include iMin and iMax
+function getRandomNumber(iMin, iMax)
+{
+    if(iMax < iMin)
+    {
+        var temp = iMax;
+        iMax = iMin;
+        iMin = temp;
+    }
+    
+    return Math.floor((Math.random() * ((iMax + 1) - iMin)) + iMin);
 }
