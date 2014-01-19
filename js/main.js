@@ -1,4 +1,4 @@
-var g_scene;
+﻿var g_scene;
 var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, space: 32};
 var g_asteroids = new Array();
 var g_ship;
@@ -112,7 +112,8 @@ function gameLoop()
 			
 			if(g_ship.health == 0)
 			{
-				alert("GAME OVER");
+			    alert("GAME OVER");
+			    setTimeout(function () { location.reload() }, 3000);
 			}
 		}
 	}
