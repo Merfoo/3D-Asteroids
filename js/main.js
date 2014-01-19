@@ -89,10 +89,14 @@ function moveShip(ship, keyCode)
             break;
     }
 }
-function rotateShip (ship, thetaX, thetaY) 
+function rotateShip (ship, thetaX, thetaY, xFollow, yFollow) 
 {
 	ship.mesh.rotation.y = thetaX;
 	ship.mesh.rotation.x = thetaY; 
+	
+	ship.mesh.position.y += yFollow*g_ship.vY; 
+	ship.mesh.position.x += xFollow*g_ship.vX; 
+
 }
 
 // Handles keyboard events
@@ -112,7 +116,9 @@ function mouseEvent(event)
 	var thetaY = -Math.PI/2;
 	var mouseX = event.clientX;
 	var mouseY = event.clientY;
-	
+	var ystuff;
+	var xstuff;
+	var zstuff;
 	if(mouseX < canvas.width/2) 
 	{
 		thetaX = ((canvas.width/2)-mouseX)/(canvas.width/2)*(-Math.PI/2);
@@ -123,6 +129,10 @@ function mouseEvent(event)
 	}
 	
 	thetaY = ((canvas.height)-mouseY)/(canvas.height)*(-Math.PI);
+	
+	xFollow = ((canvas.width/2)-mouseX)/(canvas.width/2)*-1;
+	
+	yFollow = ((canvas.height/2)-mouseY)/(canvas.height/2);
 
-	rotateShip(g_ship,thetaX, thetaY);
+	rotateShip(g_ship,thetaX, thetaY, xFollow, yFollow);
 }
