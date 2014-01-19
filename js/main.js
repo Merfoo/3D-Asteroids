@@ -18,7 +18,8 @@ window.onload = function(){
 
         //Creating scene (in "scene.js")
         g_scene = createScene(engine);
-
+        BABYLON.SceneLoader.ImportMesh("", "models/", "Spaceship.babylon", g_scene, function (newMeshes) {g_ship = newMeshes[0]; g_ship.position = new BABYLON.Vector3(-10,0,0);});
+        
         g_scene.activeCamera.attachControl(canvas);
 
 
@@ -52,14 +53,14 @@ window.onload = function(){
 
     //Creation of a box
     //(name of the box, size, scene)
-    g_ship = BABYLON.Mesh.CreateBox("Box", 6.0, scene);
+    // sdfdsfsdfg_ship = BABYLON.Mesh.CreateBox("Box", 6.0, scene);
     
     //Creation of a smaller box to represent the center of the scene
     var center = BABYLON.Mesh.CreateBox("Box", 1.0, scene);
 
 
     //Positioning the elements
-    g_ship.position = new BABYLON.Vector3(-10,0,0);//Positionnign by a vector
+    //g_ship.position = new BABYLON.Vector3(-10,0,0);//Positionnign by a vector
     
     return scene;
 }
