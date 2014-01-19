@@ -75,19 +75,19 @@ function moveShip(ship, keyCode)
     switch(keyCode)
     {
         case g_keyboardIds.w:
-            ship.position.y += g_shipTest.vy;
+            ship.position.y += g_shipTest.vY;
             break;
             
         case g_keyboardIds.s:
-            ship.position.y -= g_shipTest.vy;
+            ship.position.y -= g_shipTest.vY;
             break;
     
         case g_keyboardIds.a:
-            ship.position.x -= g_shipTest.vx;
+            ship.position.x -= g_shipTest.vX;
             break;
     
         case g_keyboardIds.d:
-            ship.position.x += g_shipTest.vx;
+            ship.position.x += g_shipTest.vX;
             break;
         default:
             break;
@@ -95,6 +95,12 @@ function moveShip(ship, keyCode)
 }
 
 // Handles keyboard events
-$("#canvas").keydown(function (e) {
-    moveShip(g_ship, e.which);
-});
+function keyboardEvent(event) 
+{
+    var keyCode = event.keyCode;
+    
+    if (event.type == "keydown")
+    {
+        moveShip(g_ship, keyCode);
+    }
+}

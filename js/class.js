@@ -36,9 +36,9 @@ Asteroid = function( x, y, z, vX, vY, vZ, rX, rY, rZ )
 {
     inheritanceManager.extend(this, MovingObject);
     //load random model here
-    this.x = model.position.x;
-    this.y = model.position.x;
-    this.z = model.position.x;
+    this.x = x;
+    this.y = y;
+    this.z = z;
     this.vX = vX;
     this.vY = vY;
     this.vZ = vZ;
@@ -52,9 +52,9 @@ Ship = function( x, y, z, vX, vY, vZ, rX, rY, rZ )
 {
     inheritanceManager.extend(this, MovingObject);
     //inport mmodel
-    this.x = model.position.x;
-    this.y = model.position.y;
-    this.z = model.position.z;
+    this.x = x;
+    this.y = y;
+    this.z = z;
     this.vX = vX;
     this.vY = vY;
     this.vZ = vZ;
@@ -84,9 +84,9 @@ Laser = function( vX, vY, vZ )
 Pickup = function( x, y, z, type, amount )
 {
     //load model here
-    this.x = model.position.x;
-    this.y = model.position.x;
-    this.z = model.position.x;
+    this.x = x;
+    this.y = y;
+    this.z = z;
 
     this.type = type;
     this.amount = amount;
