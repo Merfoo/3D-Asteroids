@@ -12,11 +12,12 @@ var g_mouseY;
 var g_lasers = [];
 var g_maxSize = 234;
 var g_shipInited = false;
-
+var g_timeInit = 0;
+var g_timeEnd = 0;
 
 window.onload = function(){
     var canvas = document.getElementById("canvas");
-
+    g_timeInit = new Date().getTime() / 1000;
 
     // Check support
     if (!BABYLON.Engine.isSupported())
@@ -86,56 +87,61 @@ function updateAsteroids()
         g_asteroids[index].mesh.position.y += g_asteroids[index].vY;
         g_asteroids[index].mesh.position.z += g_asteroids[index].vZ;
 
-		x = getRandomNumber(-100, 100) + g_ship.mesh.position.x;
-		y = getRandomNumber(-100, 100) + g_ship.mesh.position.y;
-		z = getRandomNumber(-100, 100) + g_ship.mesh.position.z;
+        x = getRandomNumber(-100, 100) + g_ship.mesh.position.x;
+        y = getRandomNumber(-100, 100) + g_ship.mesh.position.y;
+        z = getRandomNumber(-100, 100) + g_ship.mesh.position.z;
+        
+        var xShip = g_ship.mesh.position.x;
+        var yShip = g_ship.mesh.position.y;
+        var zShip = g_ship.mesh.position.z;;
+             
 		
-        if(g_asteroids[index].mesh.position.x > g_maxSize || g_asteroids[index].mesh.position.y > g_maxSize || g_asteroids[index].mesh.position.z > g_maxSize)
+        if(g_asteroids[index].mesh.position.x > g_maxSize + xShip || g_asteroids[index].mesh.position.y > g_maxSize + yShip || g_asteroids[index].mesh.position.z > g_maxSize + zShip)
         {
 		
-			//g_asteroids[index].mesh.position.x = x;
-			//g_asteroids[index].mesh.position.y = y;
-			//g_asteroids[index].mesh.position.z = z;
-            g_asteroids[index].mesh.dispose(false);
-            g_asteroids.splice(index, 1);
-            makeAsteroid(1);
+			g_asteroids[index].mesh.position.x = x;
+			g_asteroids[index].mesh.position.y = y;
+			g_asteroids[index].mesh.position.z = z;
+//            g_asteroids[index].mesh.dispose(false);
+//            g_asteroids.splice(index, 1);
+//            makeAsteroid(1);
         }
         
-        else if(g_asteroids[index].mesh.position.x < -g_maxSize || g_asteroids[index].mesh.position.y < -g_maxSize || g_asteroids[index].mesh.position.z < -g_maxSize)
+        else if(g_asteroids[index].mesh.position.x < -g_maxSize + xShip || g_asteroids[index].mesh.position.y < -g_maxSize + yShip || g_asteroids[index].mesh.position.z < -g_maxSize + zShip)
         {    
-			//g_asteroids[index].mesh.position.x = x;
-			//g_asteroids[index].mesh.position.y = y;
-			//g_asteroids[index].mesh.position.z = z;
-            g_asteroids[index].mesh.dispose(false);
-            g_asteroids.splice(index, 1);
-            makeAsteroid(1);
+			g_asteroids[index].mesh.position.x = x;
+			g_asteroids[index].mesh.position.y = y;
+			g_asteroids[index].mesh.position.z = z;
+//            g_asteroids[index].mesh.dispose(false);
+//            g_asteroids.splice(index, 1);
+//            makeAsteroid(1);
         }
     }
 }
 function gameLoop()
 {
 	var done = false;
-    updateAsteroids();
-	for(var i = 0; i < g_asteroids.length; i++) 
+        updateAsteroids();
+	for(var i = 0; i < g_asteroids.length && done == false; i++) 
 	{
 		if(g_ship.mesh.intersectsPoint(g_asteroids[i].mesh.position)) 
 		{
 			g_ship.health -= 10;
 			document.getElementById("health").innerHTML="Health: "+g_ship.health;
 
-			
 			if(g_ship.health < 0)
 			{
 				g_ship.health = 0;
-				alert("GAME OVER");
+                                g_timeEnd = new Date().getTime() / 1000;
+				alert("GAME OVER: Took you " + Math.floor(g_timeEnd - g_timeInit) + " seconds to die.");
 				done = true;
 				break;
 			}
 		}
 	}
-	if( done ) {
-		setTimeout(function () { location.reload() }, 500);
-	}
+	if( done ) 
+            setTimeout(function () { location.reload() }, 500);
+	
     g_scene.render();
 }
 
