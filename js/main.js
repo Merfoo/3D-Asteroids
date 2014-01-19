@@ -47,7 +47,7 @@ window.onload = function(){
 		
 		g_scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
 		g_scene.fogDensity = 0.01;
-        g_scene.clearColor = new BABYLON.Color4(0,0,0,0.0000000000000001); 
+        
 		
 		
         //load models
@@ -75,16 +75,12 @@ window.onload = function(){
 
 function updateAsteroids()
 {
-    console.log(g_asteroids.length);
-    
     for(var index = 0; index < g_asteroids.length; index++)
     {
-        //console.log(g_asteroids[index].mesh.position.x + " " + g_asteroids[index].mesh.position.y + " " + g_asteroids[index].mesh.position.z);
-        //console.log(g_asteroids[index].vX + " " + g_asteroids[index].vY + " " + g_asteroids[index].vZ);
         g_asteroids[index].mesh.position.x += g_asteroids[index].vX;
         g_asteroids[index].mesh.position.y += g_asteroids[index].vY;
         g_asteroids[index].mesh.position.z += g_asteroids[index].vZ;
-        
+
         if(g_asteroids[index].mesh.position.x > g_maxSize || g_asteroids[index].mesh.position.y > g_maxSize || g_asteroids[index].mesh.position.z > g_maxSize)
         {
             g_asteroids[index].mesh.dispose(false);
@@ -100,10 +96,28 @@ function updateAsteroids()
         }
     }
 }
-
 function gameLoop()
 {
     updateAsteroids();
+	for(var i = 0; i < collisionArray.length; i++) 
+	{
+		console.log(collisionArray.length);
+	}
+	console.log(g_asteroids.length);
+	for(var i = 0; i < g_asteroids.length; i++) 
+	{
+		if(g_ship.mesh.intersectsPoint(g_asteroids[i].mesh.position)) 
+		{
+				alert(g_ship.health);
+				g_ship.health -= 10;
+
+			
+			if(g_ship.health <= 0)
+			{
+				alert("GAME OVER");
+			}
+		}
+	}
     g_scene.render();
 }
 
