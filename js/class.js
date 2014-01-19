@@ -16,27 +16,15 @@ inheritanceManager.extend = function( subClass, baseClass )
 //---------------
 
 //anything that moves will extend this
-//input: x,y,z - location; vx,vy,vz - velocity; rx,ry,rz - rotation;
-MovingObject = function( x, y, z, vx, vy, vz, rx, ry, rz )
+//input: x,y,z - location; vX,vY,vZ - velocity; rX,rY,rZ - rotation;
+MovingObject = function( vX, vY, vZ, rX, rY, rZ )
 {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-    this.vx = vx;
-    this.vy = vy;
-    this.vz = vz;
-    this.rx = rx;
-    this.ry = ry;
-    this.rz = rz;
-}
-
-//anything that doesn't move will extend this
-//input: x,y,z - location
-StaticObject = function( x, y, z )
-{
-    this.x = x;
-    this.y = y;
-    this.z = z;
+    this.vX = vX;
+    this.vY = vY;
+    this.vZ = vZ;
+    this.rX = rX;
+    this.rY = rY;
+    this.rZ = rZ;
 }
 
 //---------------
@@ -44,33 +32,35 @@ StaticObject = function( x, y, z )
 //---------------
 
 //a MovingObject shell, (nothing changes yet)
-Asteroid = function( x, y, z, vx, vy, vz, rx, ry, rz )
+Asteroid = function( x, y, z, vX, vY, vZ, rX, rY, rZ )
 {
     inheritanceManager.extend(this, MovingObject);
-    this.x = x;
-    this.y = y;
-    this.z = z;
-    this.vx = vx;
-    this.vy = vy;
-    this.vz = vz;
-    this.rx = rx;
-    this.ry = ry;
-    this.rz = rz;
+    //load random model here
+    this.x = model.position.x;
+    this.y = model.position.x;
+    this.z = model.position.x;
+    this.vX = vX;
+    this.vY = vY;
+    this.vZ = vZ;
+    this.rX = rX;
+    this.rY = rY;
+    this.rZ = rZ;
 }
 
 //a MovingObject with several other flags added
-Ship = function( x, y, z, vx, vy, vz, rx, ry, rz )
+Ship = function( x, y, z, vX, vY, vZ, rX, rY, rZ )
 {
     inheritanceManager.extend(this, MovingObject);
-    this.x = x;
-    this.y = y;
-    this.z = z;
-    this.vx = vx;
-    this.vy = vy;
-    this.vz = vz;
-    this.rx = rx;
-    this.ry = ry;
-    this.rz = rz;
+    //inport mmodel
+    this.x = model.position.x;
+    this.y = model.position.y;
+    this.z = model.position.z;
+    this.vX = vX;
+    this.vY = vY;
+    this.vZ = vZ;
+    this.rX = rX;
+    this.rY = rY;
+    this.rZ = rZ;
 
     this.bIsShooting = false;
     this.health = 100;
@@ -80,12 +70,12 @@ Ship = function( x, y, z, vx, vy, vz, rx, ry, rz )
 }
 
 //a Ship, bIsHit flag tells you when the laser has hit something
-Laser = function( vx, vy, vz )
+Laser = function( vX, vY, vZ )
 {
     inheritanceManager.extend(this, Ship);
-    this.vx = vx;
-    this.vy = vy;
-    this.vz = vz;
+    this.vX = vX;
+    this.vY = vY;
+    this.vZ = vZ;
 
     this.bIsHit = false;
 }
@@ -93,10 +83,10 @@ Laser = function( vx, vy, vz )
 //a StaticObject, adds type to say what the type of Pickup is, adds amount to say how much should be added
 Pickup = function( x, y, z, type, amount )
 {
-    inheritanceManager.extend(this, StaticObject);
-    this.x = x;
-    this.y = y;
-    this.z = z;
+    //load model here
+    this.x = model.position.x;
+    this.y = model.position.x;
+    this.z = model.position.x;
 
     this.type = type;
     this.amount = amount;
