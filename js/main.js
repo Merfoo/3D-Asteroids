@@ -27,10 +27,9 @@ window.onload = function(){
 
         //Adding of the Arc Rotate Camera
         g_camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), g_scene);
-        BABYLON.SceneLoader.ImportMesh("", "models/", "Spaceship.babylon", g_scene, function (newMeshes) {g_ship = newMeshes[0]; g_ship.position = new BABYLON.Vector3(-10,0,0);});
+        BABYLON.SceneLoader.ImportMesh("", "models/scene/", "scene.babylon", g_scene, function (newMeshes) {g_ship = newMeshes[0]; g_ship.position = new BABYLON.Vector3(-10,0,0);});
         
         g_scene.activeCamera.attachControl(canvas);
-
 
         // Once the scene is loaded, just register a render loop to render it
         engine.runRenderLoop(function () {
