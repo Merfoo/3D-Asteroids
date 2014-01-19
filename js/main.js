@@ -33,7 +33,7 @@ window.onload = function(){
         g_scene.activeCamera.attachControl(canvas);
 
         //load models
-        BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_ship = newMeshes[0]; g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0); g_ship = new Ship(1, 1, 1, 0, 0, 0, g_ship); g_camera.setPosition(new BABYLON.Vector3(0, 0, -100)) });
+        BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_ship = newMeshes[0]; g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0); g_ship = new Ship(1, 1, 1, 0, 0, 0, g_ship); g_camera.setPosition(new BABYLON.Vector3(0, 25, -100)) });
         BABYLON.SceneLoader.ImportMesh("asteroid0", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_small = newMeshes[0]; g_small.position = new BABYLON.Vector3(-250, -10, -10); });
         BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_large = newMeshes[0]; g_large.position = new BABYLON.Vector3(10, 10, 250); });
 
