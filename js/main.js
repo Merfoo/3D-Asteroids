@@ -95,9 +95,6 @@ function moveShip(ship, keyCode)
 }
 
 // Handles keyboard events
-function keyboardEvent(event) 
-{
-    $("#canvas").keydown(function (e) {
-        moveShip(g_ship, e.which);
-    });
-}
+$("#canvas").keydown(function (e) {
+    moveShip(g_ship, e.which);
+});
