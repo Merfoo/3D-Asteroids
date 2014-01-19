@@ -48,7 +48,7 @@ Asteroid = function( vX, vY, vZ, rX, rY, rZ, mesh )
 }
 
 //a MovingObject with several other flags added
-Ship = function( x, y, z, vX, vY, vZ, rX, rY, rZ, mesh )
+Ship = function( vX, vY, vZ, rX, rY, rZ, mesh )
 {
     inheritanceManager.extend(this, MovingObject);
     this.mesh = mesh;
@@ -82,7 +82,7 @@ Laser = function( vX, vY, vZ, mesh )
 }
 
 //a StaticObject, adds type to say what the type of Pickup is, adds amount to say how much should be added
-Pickup = function( x, y, z, mesh, type, amount )
+Pickup = function( mesh, type, amount )
 {
     this.mesh = mesh;
     this.x = mesh.position.x;
