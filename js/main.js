@@ -47,10 +47,11 @@ window.onload = function(){
 		
 		g_scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
 		g_scene.fogDensity = 0.01;
+        g_scene.clearColor = new BABYLON.Color4(0,0,0,0.0000000000000001); 
 		
 		
         //load models
-        BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_ship = newMeshes[0]; g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0); g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); g_ship.mesh.scaling.x = .2; g_ship.mesh.scaling.y = .2; g_ship.mesh.scaling.z = .2; g_camera.setPosition(new BABYLON.Vector3(0, 0, -50))});
+        BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_ship = newMeshes[0]; g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0); g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); g_ship.mesh.scaling.x = .2; g_ship.mesh.scaling.y = .2; g_ship.mesh.scaling.z = .2; g_camera.setPosition(new BABYLON.Vector3(0, 0, -50));});
         BABYLON.SceneLoader.ImportMesh("asteroid0", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_small = newMeshes[0]; g_small.position = new BABYLON.Vector3(-250, -10, -10); });
         BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_large = newMeshes[0]; g_large.position = new BABYLON.Vector3(10, 10, 250); g_large.scaling.x = .2; g_large.scaling.y = .2; g_large.scaling.z = .2; makeAsteroid(20);});
         //Adding of the Arc Rotate Camera
@@ -86,14 +87,14 @@ function updateAsteroids()
         
         if(g_asteroids[index].mesh.position.x > g_maxSize || g_asteroids[index].mesh.position.y > g_maxSize || g_asteroids[index].mesh.position.z > g_maxSize)
         {
-            g_asteroids[index].mesh.dispose();
+            g_asteroids[index].mesh.dispose(false);
             g_asteroids.splice(index, 1);
             makeAsteroid(1);
         }
         
         else if(g_asteroids[index].mesh.position.x < -g_maxSize || g_asteroids[index].mesh.position.y < -g_maxSize || g_asteroids[index].mesh.position.z < -g_maxSize)
         {    
-            g_asteroids[index].mesh.dispose();
+            g_asteroids[index].mesh.dispose(false);
             g_asteroids.splice(index, 1);
             makeAsteroid(1);
         }
