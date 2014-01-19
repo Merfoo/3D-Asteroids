@@ -1,8 +1,8 @@
 ﻿var g_scene;
-var g_keyboardIds = { w: 87, s: 83, a: 65, d:68 };
+var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69};
 var g_asteroids = new Array();
 var g_ship = new Ship(0, 0, 0, 1, 1, 1, 0, 0, 0);
-var g_shipTest = new Ship(0, 0, 0, 0.5, 0.5, 0.5, 0, 0, 0);
+var g_shipTest = new Ship(0, 0, 0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5);
 var g_light;
 var g_camera;
 var g_small;
@@ -75,6 +75,14 @@ function moveShip(ship, keyCode)
         case g_keyboardIds.d:
             ship.position.x += g_shipTest.vX;
             break;
+            
+        case g_keyboardIds.q:
+            ship.rotation.x -= g_shipTest.rX * Math.PI / 180;
+            break;
+            
+        case g_keyboardIds.e:
+            ship.rotation.x += g_shipTest.rX * Math.PI / 180;
+            break;
         default:
             break;
     }
@@ -82,11 +90,10 @@ function moveShip(ship, keyCode)
 
 // Handles keyboard events
 function keyboardEvent(event) 
-{
-    var keyCode = event.keyCode;
-    
+{    
     if (event.type == "keydown")
     {
+        var keyCode = event.keyCode;
         moveShip(g_ship, keyCode);
     }
 }
