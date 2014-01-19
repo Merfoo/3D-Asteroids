@@ -1,5 +1,5 @@
 var g_scene;
-var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69};
+var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, space: 32};
 var g_asteroids = new Array();
 var g_ship;
 var g_light;
@@ -7,6 +7,9 @@ var g_light2;
 var g_camera;
 var g_small;
 var g_large;
+var g_mouseX;
+var g_mouseY;
+var g_lasers = [];
 
 window.onload = function(){
     var canvas = document.getElementById("canvas");
@@ -30,12 +33,27 @@ window.onload = function(){
 
         //Adding of the Arc Rotate Camera
         g_camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), g_scene);
-
+		
+		//skybox
+		/*var skybox = BABYLON.Mesh.CreateBox("skyBox", 1000.0, g_scene);
+		var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", g_scene);
+		skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("Assets/skybox", g_scene);
+		skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+        skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+        skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+		skyboxMaterial.backFaceCulling = false;
+		skybox.material = skyboxMaterial;*/
+		
+		g_scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
+		g_scene.fogDensity = 0.01;
+		
+		
         //load models
-        BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_ship = newMeshes[0]; g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0); g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); g_camera.setPosition(new BABYLON.Vector3(0, 0, -100)) });
+        BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_ship = newMeshes[0]; g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0); g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); g_ship.mesh.scaling.x = .01; g_ship.mesh.scaling.y = .01; g_ship.mesh.scaling.z = .01; g_camera.setPosition(new BABYLON.Vector3(0, 0, -5))});
         BABYLON.SceneLoader.ImportMesh("asteroid0", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_small = newMeshes[0]; g_small.position = new BABYLON.Vector3(-250, -10, -10); });
         BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_large = newMeshes[0]; g_large.position = new BABYLON.Vector3(10, 10, 250); });
 
+		
         // Once the scene is loaded, just register a render loop to render it
         engine.runRenderLoop(function () {
             gameLoop();
@@ -85,6 +103,11 @@ function moveShip(ship, keyCode)
         case g_keyboardIds.e:
             ship.mesh.rotation.x += g_ship.rX * Math.PI / 180;
             break;
+		
+		case g_keyboardIds.space:
+			BABYLON.SceneLoader.ImportMesh("laser", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { var newLaser = new Laser(new Laser((canvas.width/2)-g_mouseX)/(canvas.width/2)*-1, ((canvas.height/2)-mouseY)/(canvas.height/2), 1, newLaser); g_lasers.push(newLaser)});
+			break;
+			
         default:
             break;
     }
@@ -108,7 +131,11 @@ function keyboardEvent(event)
         moveShip(g_ship, keyCode);
     }
 }
-
+/*canvas.onclick = function () 
+{
+	var lasers = [];
+	BABYLON.SceneLoader.ImportMesh("laser", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { var newLaser = new Laser(new Laser((canvas.width/2)-g_mouseX)/(canvas.width/2)*-1, ((canvas.height/2)-mouseY)/(canvas.height/2), 1, newLaser); lasers.push(newLaser)});
+}*/
 //Handles mouse events
 function mouseEvent(event) 
 {
@@ -116,9 +143,10 @@ function mouseEvent(event)
 	var thetaY = -Math.PI/2;
 	var mouseX = event.clientX;
 	var mouseY = event.clientY;
-	var ystuff;
-	var xstuff;
-	var zstuff;
+	var yFollow;
+	var xFollow;
+	g_mouseX = event.clientX;
+	g_mouseY = event.clientY;
 	if(mouseX < canvas.width/2) 
 	{
 		thetaX = ((canvas.width/2)-mouseX)/(canvas.width/2)*(-Math.PI/2);
