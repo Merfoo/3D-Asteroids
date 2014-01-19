@@ -12,8 +12,10 @@ var g_mouseY;
 var g_lasers = [];
 var g_maxSize = 234;
 
+
 window.onload = function(){
     var canvas = document.getElementById("canvas");
+
 
     // Check support
     if (!BABYLON.Engine.isSupported())
@@ -98,21 +100,17 @@ function updateAsteroids()
 }
 function gameLoop()
 {
+
     updateAsteroids();
-	for(var i = 0; i < collisionArray.length; i++) 
-	{
-		console.log(collisionArray.length);
-	}
-	console.log(g_asteroids.length);
 	for(var i = 0; i < g_asteroids.length; i++) 
 	{
 		if(g_ship.mesh.intersectsPoint(g_asteroids[i].mesh.position)) 
 		{
-				alert(g_ship.health);
-				g_ship.health -= 10;
+			g_ship.health -= 10;
+			document.getElementById("health").innerHTML="Health: "+g_ship.health;
 
 			
-			if(g_ship.health <= 0)
+			if(g_ship.health == 0)
 			{
 				alert("GAME OVER");
 			}
@@ -215,23 +213,25 @@ function makeAsteroid(amount)
     // Box with 600 x 600 x 600
     for(var index = 0; index < amount; index++)
     {
-        BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
-        { 
+        //BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
+        //{ 
             var x, y, z;
 
-            x = getRandomNumber(-100, 100);
-            y = getRandomNumber(-100, 100);
-            z = getRandomNumber(-100, 100);
+            x = getRandomNumber(-100, 100) + g_ship.mesh.x;
+            y = getRandomNumber(-100, 100) + g_ship.mesh.y;
+            z = getRandomNumber(-100, 100) + g_ship.mesh.z;
 
             var vX = (getRandomNumber(-1, 1) - 1) / 2;
             var vY = (getRandomNumber(-1, 1) - 1) / 2;
             var vZ = (getRandomNumber(-1, 1) - 1) / 2;
-            newMeshes[0].position = new BABYLON.Vector3(x, y, z); 
-            newMeshes[0].scaling.x = .15; 
-            newMeshes[0].scaling.y = .15; 
-            newMeshes[0].scaling.z = .15; 
-            g_asteroids.push(new Asteroid(vX, vY, vZ, x, y, z, newMeshes[0]));
-        });
+			
+			var newMesh = g_large.clone("0");
+            newMesh.position = new BABYLON.Vector3(x, y, z); 
+            newMesh.scaling.x = .15; 
+            newMesh.scaling.y = .15; 
+            newMesh.scaling.z = .15; 
+            g_asteroids.push(new Asteroid(vX, vY, vZ, x, y, z, newMesh));
+        //});
     }
 }
 
