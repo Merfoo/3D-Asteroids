@@ -32,13 +32,13 @@ MovingObject = function( vX, vY, vZ, rX, rY, rZ )
 //---------------
 
 //a MovingObject shell, (nothing changes yet)
-Asteroid = function( x, y, z, vX, vY, vZ, rX, rY, rZ )
+Asteroid = function( vX, vY, vZ, rX, rY, rZ, mesh )
 {
     inheritanceManager.extend(this, MovingObject);
-    //load random model here
-    this.x = x;
-    this.y = y;
-    this.z = z;
+    this.mesh = mesh;
+    this.x = mesh.position.x;
+    this.y = mesh.position.y;
+    this.z = mesh.position.z;
     this.vX = vX;
     this.vY = vY;
     this.vZ = vZ;
@@ -48,13 +48,13 @@ Asteroid = function( x, y, z, vX, vY, vZ, rX, rY, rZ )
 }
 
 //a MovingObject with several other flags added
-Ship = function( x, y, z, vX, vY, vZ, rX, rY, rZ )
+Ship = function( x, y, z, vX, vY, vZ, rX, rY, rZ, mesh )
 {
     inheritanceManager.extend(this, MovingObject);
-    //inport mmodel
-    this.x = x;
-    this.y = y;
-    this.z = z;
+    this.mesh = mesh;
+    this.x = mesh.position.x;
+    this.y = mesh.position.y;
+    this.z = mesh.position.z;
     this.vX = vX;
     this.vY = vY;
     this.vZ = vZ;
@@ -70,9 +70,10 @@ Ship = function( x, y, z, vX, vY, vZ, rX, rY, rZ )
 }
 
 //a Ship, bIsHit flag tells you when the laser has hit something
-Laser = function( vX, vY, vZ )
+Laser = function( vX, vY, vZ, mesh )
 {
     inheritanceManager.extend(this, Ship);
+    this.mesh = mesh;
     this.vX = vX;
     this.vY = vY;
     this.vZ = vZ;
@@ -81,12 +82,12 @@ Laser = function( vX, vY, vZ )
 }
 
 //a StaticObject, adds type to say what the type of Pickup is, adds amount to say how much should be added
-Pickup = function( x, y, z, type, amount )
+Pickup = function( x, y, z, mesh, type, amount )
 {
-    //load model here
-    this.x = x;
-    this.y = y;
-    this.z = z;
+    this.mesh = mesh;
+    this.x = mesh.position.x;
+    this.y = mesh.position.y;
+    this.z = mesn.position.z;
 
     this.type = type;
     this.amount = amount;
