@@ -89,19 +89,15 @@ function moveShip(ship, keyCode)
         case g_keyboardIds.d:
             ship.position.x += g_shipTest.vx;
             break;
+        default:
+            break;
     }
 }
 
 // Handles keyboard events
 function keyboardEvent(event) 
 {
-    var keyCode = event.keyCode;
-    
-    if (event.type == "keydown")
-    {
-        if (keyCode == g_keyboardIds.w || keyCode == g_keyboardIds.s || keyCode == g_keyboardIds.a || keyCode == g_keyboardIds.d)
-        {
-            moveShip(g_ship, keyCode);
-        }  
-    }
+    $("#canvas").keydown(function (e) {
+        moveShip(g_ship, e.which);
+    });
 }
