@@ -33,9 +33,9 @@ window.onload = function(){
         g_scene.activeCamera.attachControl(canvas);
 
         //load models
-        BABYLON.SceneLoader.ImportMesh("Ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_ship = newMeshes[0]; g_ship.position = new BABYLON.Vector3(-10, 0, 0); g_ship = new Ship(0, 0, 0, 0, 0, 0, g_ship); });
-        BABYLON.SceneLoader.ImportMesh("Asteroid", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_small = newMeshes[0]; g_small.position = new BABYLON.Vector3(-10, -10, -10); });
-        BABYLON.SceneLoader.ImportMesh("2ndAsteroid", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_large = newMeshes[0]; g_large.position = new BABYLON.Vector3(10, 10, 10); });
+        BABYLON.SceneLoader.ImportMesh("Ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_ship = newMeshes[0]; g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0); g_ship = new Ship(1, 1, 1, 0, 0, 0, g_ship); g_camera.setPosition(new BABYLON.Vector3(0, 0, -100)) });
+        BABYLON.SceneLoader.ImportMesh("Asteroid", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_small = newMeshes[0]; g_small.position = new BABYLON.Vector3(-250, -10, -10); });
+        BABYLON.SceneLoader.ImportMesh("2ndAsteroid", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_large = newMeshes[0]; g_large.position = new BABYLON.Vector3(10, 10, 250); });
 
         // Once the scene is loaded, just register a render loop to render it
         engine.runRenderLoop(function () {
@@ -62,6 +62,7 @@ function moveShip(ship, keyCode)
     switch(keyCode)
     {
         case g_keyboardIds.w:
+            console.log(ship.mesh.position.z + " " + g_ship.vY)
             ship.mesh.position.z += g_ship.vY;
             break;
             
