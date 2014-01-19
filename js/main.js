@@ -1,4 +1,4 @@
-﻿var g_scene;
+var g_scene;
 var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69};
 var g_asteroids = new Array();
 var g_ship;
@@ -30,10 +30,9 @@ window.onload = function(){
 
         //Adding of the Arc Rotate Camera
         g_camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), g_scene);
-        g_scene.activeCamera.attachControl(canvas);
 
         //load models
-        BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_ship = newMeshes[0]; g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0); g_ship = new Ship(1, 1, 1, 0, 0, 0, g_ship); g_camera.setPosition(new BABYLON.Vector3(0, 25, -100)) });
+        BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_ship = newMeshes[0]; g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0); g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); g_camera.setPosition(new BABYLON.Vector3(0, 0, -100)) });
         BABYLON.SceneLoader.ImportMesh("asteroid0", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_small = newMeshes[0]; g_small.position = new BABYLON.Vector3(-250, -10, -10); });
         BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_large = newMeshes[0]; g_large.position = new BABYLON.Vector3(10, 10, 250); });
 
@@ -49,6 +48,7 @@ window.onload = function(){
         
         window.addEventListener("keydown", keyboardEvent, true);
         window.addEventListener("keyup", keyboardEvent, true);
+		canvas.addEventListener("mousemove", mouseEvent, true);
     } 
 };
 
@@ -89,6 +89,11 @@ function moveShip(ship, keyCode)
             break;
     }
 }
+function rotateShip (ship, thetaX, thetaY) 
+{
+	ship.mesh.rotation.y = thetaX;
+	ship.mesh.rotation.x = thetaY; 
+}
 
 // Handles keyboard events
 function keyboardEvent(event) 
@@ -98,4 +103,26 @@ function keyboardEvent(event)
         var keyCode = event.keyCode;
         moveShip(g_ship, keyCode);
     }
+}
+
+//Handles mouse events
+function mouseEvent(event) 
+{
+	var thetaX = 0;
+	var thetaY = -Math.PI/2;
+	var mouseX = event.clientX;
+	var mouseY = event.clientY;
+	
+	if(mouseX < canvas.width/2) 
+	{
+		thetaX = ((canvas.width/2)-mouseX)/(canvas.width/2)*(-Math.PI/2);
+	}
+	else
+	{
+		thetaX = (mouseX-(canvas.width/2))/(canvas.width/2)*(Math.PI/2);
+	}
+	
+	thetaY = ((canvas.height)-mouseY)/(canvas.height)*(-Math.PI);
+
+	rotateShip(g_ship,thetaX, thetaY);
 }
