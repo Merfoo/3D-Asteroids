@@ -1,4 +1,4 @@
-﻿var g_scene;
+var g_scene;
 var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, space: 32};
 var g_asteroids = new Array();
 var g_ship;
@@ -11,6 +11,7 @@ var g_mouseX;
 var g_mouseY;
 var g_lasers = [];
 var g_maxSize = 234;
+var g_shipInited = false;
 
 
 window.onload = function(){
@@ -77,14 +78,24 @@ window.onload = function(){
 
 function updateAsteroids()
 {
+	var x, y, z;
+	
     for(var index = 0; index < g_asteroids.length; index++)
     {
         g_asteroids[index].mesh.position.x += g_asteroids[index].vX;
         g_asteroids[index].mesh.position.y += g_asteroids[index].vY;
         g_asteroids[index].mesh.position.z += g_asteroids[index].vZ;
 
+		x = getRandomNumber(-100, 100) + g_ship.mesh.position.x;
+		y = getRandomNumber(-100, 100) + g_ship.mesh.position.y;
+		z = getRandomNumber(-100, 100) + g_ship.mesh.position.z;
+		
         if(g_asteroids[index].mesh.position.x > g_maxSize || g_asteroids[index].mesh.position.y > g_maxSize || g_asteroids[index].mesh.position.z > g_maxSize)
         {
+		
+			//g_asteroids[index].mesh.position.x = x;
+			//g_asteroids[index].mesh.position.y = y;
+			//g_asteroids[index].mesh.position.z = z;
             g_asteroids[index].mesh.dispose(false);
             g_asteroids.splice(index, 1);
             makeAsteroid(1);
@@ -92,6 +103,9 @@ function updateAsteroids()
         
         else if(g_asteroids[index].mesh.position.x < -g_maxSize || g_asteroids[index].mesh.position.y < -g_maxSize || g_asteroids[index].mesh.position.z < -g_maxSize)
         {    
+			//g_asteroids[index].mesh.position.x = x;
+			//g_asteroids[index].mesh.position.y = y;
+			//g_asteroids[index].mesh.position.z = z;
             g_asteroids[index].mesh.dispose(false);
             g_asteroids.splice(index, 1);
             makeAsteroid(1);
@@ -100,7 +114,7 @@ function updateAsteroids()
 }
 function gameLoop()
 {
-
+	var done = false;
     updateAsteroids();
 	for(var i = 0; i < g_asteroids.length; i++) 
 	{
@@ -110,12 +124,17 @@ function gameLoop()
 			document.getElementById("health").innerHTML="Health: "+g_ship.health;
 
 			
-			if(g_ship.health == 0)
+			if(g_ship.health < 0)
 			{
-			    alert("GAME OVER");
-			    setTimeout(function () { location.reload() }, 3000);
+				g_ship.health = 0;
+				alert("GAME OVER");
+				done = true;
+				break;
 			}
 		}
+	}
+	if( done ) {
+		setTimeout(function () { location.reload() }, 500);
 	}
     g_scene.render();
 }
@@ -129,7 +148,7 @@ function moveShip(ship, keyCode)
             break;
             
         case g_keyboardIds.s:
-            ship.mesh.position.z -= g_ship.vY;
+            ship.mesh.position.z -= g_ship.vY * 2;
             break;
     
         case g_keyboardIds.a:
@@ -218,9 +237,9 @@ function makeAsteroid(amount)
         //{ 
             var x, y, z;
 
-            x = getRandomNumber(-100, 100) + g_ship.mesh.x;
-            y = getRandomNumber(-100, 100) + g_ship.mesh.y;
-            z = getRandomNumber(-100, 100) + g_ship.mesh.z;
+            x = getRandomNumber(-100, 100);// + g_ship.mesh.position.x;
+            y = getRandomNumber(-100, 100);// + g_ship.mesh.position.y;
+            z = getRandomNumber(-100, 100);// + g_ship.mesh.position.z;
 
             var vX = (getRandomNumber(-1, 1) - 1) / 2;
             var vY = (getRandomNumber(-1, 1) - 1) / 2;
