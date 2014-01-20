@@ -70,7 +70,7 @@ window.onload = function(){
         g_particleSystem.maxLifeTime = 1.5;
         
         // Emission rate
-        g_particleSystem.emitRate = 1500;
+        g_particleSystem.emitRate = 3000;
         
         // Blend mode: BLENDMODE_ONEONE, or BLENDMODE_STANDARD
         g_particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
@@ -78,8 +78,8 @@ window.onload = function(){
         // No gravity yo...
         
         // Direction of each particle after it has been emitted
-        g_particleSystem.direction1 = new BABYLON.Vector3(-7, 8, 3);
-        g_particleSystem.direction2 = new BABYLON.Vector3(7, 8, -3);
+        g_particleSystem.direction1 = new BABYLON.Vector3(-3, 8, 2);
+        g_particleSystem.direction2 = new BABYLON.Vector3(3, 8, -2);
         
         // Angular speed, in radians
         g_particleSystem.minAngularSpeed = 0;
@@ -97,12 +97,14 @@ window.onload = function(){
         
         // Start the particle system
         g_particleSystem.start();
-        
+       
         // Load models
         BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
         { 
             g_ship = newMeshes[0]; 
-            g_camera.target = g_fountain.position = g_ship.position = new BABYLON.Vector3(0, 0, 0); 
+            g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0); 
+            g_fountain.position = g_ship.position; 
+            g_fountain.rotation = g_ship.rotation;
             g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); 
             g_ship.mesh.scaling.x = .2; 
             g_ship.mesh.scaling.y = .2; 
