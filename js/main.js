@@ -72,7 +72,7 @@ window.onload = function(){
             g_large.scaling.x = .2; 
             g_large.scaling.y = .2; 
             g_large.scaling.z = .2; 
-            makeAsteroid(123);
+            makeAsteroid(111);
         });
         
         // Once the scene is loaded, just register a render loop to render it
@@ -93,21 +93,19 @@ window.onload = function(){
 
 function updateAsteroids()
 {
-    var x, y, z;
-	
     for(var index = 0; index < g_asteroids.length; index++)
     {
         g_asteroids[index].mesh.position.x += g_asteroids[index].vX;
         g_asteroids[index].mesh.position.y += g_asteroids[index].vY;
         g_asteroids[index].mesh.position.z += g_asteroids[index].vZ;
 
-        x = getRandomNumber(-100, 100) + g_ship.mesh.position.x;
-        y = getRandomNumber(-100, 100) + g_ship.mesh.position.y;
-        z = getRandomNumber(-100, 100) + g_ship.mesh.position.z;
-        
         var xShip = g_ship.mesh.position.x;
         var yShip = g_ship.mesh.position.y;
         var zShip = g_ship.mesh.position.z;;
+        
+        var x = getRandomNumber(-g_constAsteroids.maxX, g_constAsteroids.maxX) + xShip;
+        var y = getRandomNumber(-g_constAsteroids.maxY, g_constAsteroids.maxY) + yShip;
+        var z = getRandomNumber(-g_constAsteroids.maxZ, g_constAsteroids.maxZ) + zShip;
              
         if(g_asteroids[index].mesh.position.x > g_maxSize + xShip || g_asteroids[index].mesh.position.y > g_maxSize + yShip || g_asteroids[index].mesh.position.z > g_maxSize + zShip)
         {
@@ -244,28 +242,22 @@ function mouseEvent(event)
 
 function makeAsteroid(amount)
 {
-    // Box with 600 x 600 x 600
     for(var index = 0; index < amount; index++)
     {
-        var x, y, z;
+        var x = getRandomNumber(-g_constAsteroids.maxX, g_constAsteroids.maxX);
+        var y = getRandomNumber(-g_constAsteroids.maxY, g_constAsteroids.maxY);
+        var z = getRandomNumber(-g_constAsteroids.maxZ, g_constAsteroids.maxZ);
 
-        x = getRandomNumber(-g_constAsteroids.maxX, g_constAsteroids.maxX);
-        y = getRandomNumber(-g_constAsteroids.maxY, g_constAsteroids.maxY);
-        z = getRandomNumber(-g_constAsteroids.maxZ, g_constAsteroids.maxZ);
-
-        var vX = (getRandomNumber(-1, 1) - 1) / 2;
-        var vY = (getRandomNumber(-1, 1) - 1) / 2;
-        var vZ = (getRandomNumber(-1, 1) - 1) / 2;
-
+        var vX = (getRandomNumber(-10, 10) - 1) / 8.0;
+        var vY = (getRandomNumber(-10, 10) - 1) / 8.0;
+        var vZ = (getRandomNumber(-10, 10) - 1) / 8.0;
+        
         var newMesh = g_large.clone("0");
 
-        if(getRandomNumber(0, 1) === 1)
-            newMesh = g_small.clone("0");
-
         newMesh.position = new BABYLON.Vector3(x, y, z); 
-        newMesh.scaling.x = .15; 
-        newMesh.scaling.y = .15; 
-        newMesh.scaling.z = .15; 
+        newMesh.scaling.x = (Math.random() * 0.2) + 0.1;
+        newMesh.scaling.y = (Math.random() * 0.2) + 0.1; 
+        newMesh.scaling.z = (Math.random() * 0.2) + 0.1;
         g_asteroids.push(new Asteroid(vX, vY, vZ, x, y, z, newMesh));
     }
 }
