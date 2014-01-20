@@ -53,8 +53,8 @@ window.onload = function(){
         
         // Where the particles come from
         g_particleSystem.emitter = g_fountain;
-        g_particleSystem.minEmitBox = new BABYLON.Vector3(-1, 0, 0);    // Starting from
-        g_particleSystem.maxEmitBox = new BABYLON.Vector3(1, 0, 0);     // to...
+        g_particleSystem.minEmitBox = new BABYLON.Vector3(0, 0, -2);    // Starting from
+        g_particleSystem.maxEmitBox = new BABYLON.Vector3(0, 5, 0);     // to...
         
         // Color of all particles
         g_particleSystem.color1 = new BABYLON.Color4(0.7, 0.8, 1.0, 1.0);
@@ -70,7 +70,7 @@ window.onload = function(){
         g_particleSystem.maxLifeTime = 1.5;
         
         // Emission rate
-        g_particleSystem.emitRate = 3000;
+        g_particleSystem.emitRate = 30000;
         
         // Blend mode: BLENDMODE_ONEONE, or BLENDMODE_STANDARD
         g_particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
@@ -78,12 +78,12 @@ window.onload = function(){
         // No gravity yo...
         
         // Direction of each particle after it has been emitted
-        g_particleSystem.direction1 = new BABYLON.Vector3(-3, 8, 2);
-        g_particleSystem.direction2 = new BABYLON.Vector3(3, 8, -2);
+        g_particleSystem.direction1 = new BABYLON.Vector3(-6, 8, 4);
+        g_particleSystem.direction2 = new BABYLON.Vector3(6, 8, -4);
         
         // Angular speed, in radians
         g_particleSystem.minAngularSpeed = 0;
-        g_particleSystem.maxAngularSpeed = Math.PI;
+        g_particleSystem.maxAngularSpeed = Math.PI/4;
         
         g_particleSystem.targetStopDuration = 3;
         
