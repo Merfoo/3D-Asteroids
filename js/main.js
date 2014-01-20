@@ -1,6 +1,6 @@
 var g_scene;
 var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, space: 32};
-var g_constAsteroids = { maxX: 100, maxY: 100, maxZ: 100, maxVX: 100, maxVY: 100, maxVZ: 100 };
+var g_constAsteroids = { maxX: 225, maxY: 225, maxZ: 225};
 var g_asteroids = new Array();
 var g_ship;
 var g_light;
@@ -11,7 +11,7 @@ var g_large;
 var g_mouseX;
 var g_mouseY;
 var g_lasers = [];
-var g_maxSize = 234;
+var g_maxSize = 300;
 var g_shipInited = false;
 var g_timeInit = 0;
 var g_timeEnd = 0;
@@ -128,7 +128,7 @@ window.onload = function(){
             g_large.scaling.x = .2; 
             g_large.scaling.y = .2; 
             g_large.scaling.z = .2; 
-            makeAsteroid(111);
+            initAsteroids(111);
         });
         
         // Once the scene is loaded, just register a render loop to render it
@@ -151,31 +151,16 @@ function updateAsteroids()
 {
     for(var index = 0; index < g_asteroids.length; index++)
     {
-        g_asteroids[index].mesh.position.x += g_asteroids[index].vX;
-        g_asteroids[index].mesh.position.y += g_asteroids[index].vY;
-        g_asteroids[index].mesh.position.z += g_asteroids[index].vZ;
-
+        var xAster = g_asteroids[index].mesh.position.x += g_asteroids[index].vX;
+        var yAster = g_asteroids[index].mesh.position.y += g_asteroids[index].vY;
+        var zAster = g_asteroids[index].mesh.position.z += g_asteroids[index].vZ;
         var xShip = g_ship.mesh.position.x;
         var yShip = g_ship.mesh.position.y;
-        var zShip = g_ship.mesh.position.z;;
-        
-        var x = getRandomNumber(-g_constAsteroids.maxX, g_constAsteroids.maxX) + xShip;
-        var y = getRandomNumber(-g_constAsteroids.maxY, g_constAsteroids.maxY) + yShip;
-        var z = getRandomNumber(-g_constAsteroids.maxZ, g_constAsteroids.maxZ) + zShip;
+        var zShip = g_ship.mesh.position.z;
              
-        if(g_asteroids[index].mesh.position.x > g_maxSize + xShip || g_asteroids[index].mesh.position.y > g_maxSize + yShip || g_asteroids[index].mesh.position.z > g_maxSize + zShip)
-        {
-            g_asteroids[index].mesh.position.x = x;
-            g_asteroids[index].mesh.position.y = y;
-            g_asteroids[index].mesh.position.z = z;
-        }
-        
-        else if(g_asteroids[index].mesh.position.x < -g_maxSize + xShip || g_asteroids[index].mesh.position.y < -g_maxSize + yShip || g_asteroids[index].mesh.position.z < -g_maxSize + zShip)
-        {    
-            g_asteroids[index].mesh.position.x = x;
-            g_asteroids[index].mesh.position.y = y;
-            g_asteroids[index].mesh.position.z = z;
-        }
+        if(xAster > g_maxSize + xShip || yAster > g_maxSize + yShip || zAster > g_maxSize + zShip || 
+           xAster < -g_maxSize + xShip || yAster < -g_maxSize + yShip || zAster < -g_maxSize + zShip)
+            resetAsteroid(index);
     }
 }
 function gameLoop()
@@ -297,7 +282,7 @@ function mouseEvent(event)
 	rotateShip(g_ship,thetaX, thetaY, xFollow, yFollow);
 }
 
-function makeAsteroid(amount)
+function initAsteroids(amount)
 {
     for(var index = 0; index < amount; index++)
     {
@@ -317,6 +302,16 @@ function makeAsteroid(amount)
         newMesh.scaling.z = (Math.random() * 0.2) + 0.1;
         g_asteroids.push(new Asteroid(vX, vY, vZ, x, y, z, newMesh));
     }
+}
+
+function resetAsteroid(index)
+{
+    var x = getRandomNumber(-g_constAsteroids.maxX, g_constAsteroids.maxX) + g_ship.mesh.position.x;
+    var y = getRandomNumber(-g_constAsteroids.maxY, g_constAsteroids.maxY) + g_ship.mesh.position.y;
+    var z = getRandomNumber(-g_constAsteroids.maxZ, g_constAsteroids.maxZ) + g_ship.mesh.position.z;
+    g_asteroids[index].mesh.position.x = x;
+    g_asteroids[index].mesh.position.y = y;
+    g_asteroids[index].mesh.position.z = z;
 }
 
 // Returns random number between iMin and iMax, include iMin and iMax
