@@ -1,5 +1,6 @@
 var g_scene;
 var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, space: 32};
+var g_constAsteroids = { maxX: 100, maxY: 100, maxZ: 100, maxVX: 100, maxVY: 100, maxVZ: 100 };
 var g_asteroids = new Array();
 var g_ship;
 var g_light;
@@ -28,7 +29,6 @@ window.onload = function(){
         // Babylon
         var engine = new BABYLON.Engine(canvas, true);
 
-        //Creating scene (in "scene.js")
         //Creation of the scene 
         g_scene = new BABYLON.Scene(engine);
 
@@ -38,29 +38,42 @@ window.onload = function(){
 
         //Adding of the Arc Rotate Camera
         g_camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), g_scene);
-		
-		//skybox
-		/*var skybox = BABYLON.Mesh.CreateBox("skyBox", 1000.0, g_scene);
-		var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", g_scene);
-		skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("Assets/skybox", g_scene);
-		skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-        skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
-        skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-		skyboxMaterial.backFaceCulling = false;
-		skybox.material = skyboxMaterial;*/
-		
-		g_scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
-		g_scene.fogDensity = 0.01;
         
-		
-		
-        //load models
-        BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_ship = newMeshes[0]; g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0); g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); g_ship.mesh.scaling.x = .2; g_ship.mesh.scaling.y = .2; g_ship.mesh.scaling.z = .2; g_camera.setPosition(new BABYLON.Vector3(0, 0, -50));});
-        BABYLON.SceneLoader.ImportMesh("asteroid0", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_small = newMeshes[0]; g_small.position = new BABYLON.Vector3(-250, -10, -10); });
-        BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) { g_large = newMeshes[0]; g_large.position = new BABYLON.Vector3(10, 10, 250); g_large.scaling.x = .2; g_large.scaling.y = .2; g_large.scaling.z = .2; makeAsteroid(20);});
-        //Adding of the Arc Rotate Camera
-       // g_camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), g_scene);
-       //g_scene.activeCamera.attachControl(canvas);
+        // Add fog
+        g_scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
+        g_scene.fogDensity = 0.01;
+        
+        // Load models
+        BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
+        { 
+            g_ship = newMeshes[0]; 
+            g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0); 
+            g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); 
+            g_ship.mesh.scaling.x = .2; 
+            g_ship.mesh.scaling.y = .2; 
+            g_ship.mesh.scaling.z = .2; 
+            g_camera.setPosition(new BABYLON.Vector3(0, 0, -50));
+        });
+        
+        BABYLON.SceneLoader.ImportMesh("asteroid0", "models/scene/", "scene.babylon", g_scene, function (newMeshes)
+        { 
+            g_small = newMeshes[0];
+            g_small.position = new BABYLON.Vector3(0, 0, 0); 
+            g_small.scaling.x = 1; 
+            g_small.scaling.y = 1; 
+            g_small.scaling.z = 1; 
+        });
+        
+        BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
+        { 
+            g_large = newMeshes[0];
+            g_large.position = new BABYLON.Vector3(0, 0, 0);
+            g_large.scaling.x = .2; 
+            g_large.scaling.y = .2; 
+            g_large.scaling.z = .2; 
+            makeAsteroid(123);
+        });
+        
         // Once the scene is loaded, just register a render loop to render it
         engine.runRenderLoop(function () {
             gameLoop();
@@ -95,26 +108,18 @@ function updateAsteroids()
         var yShip = g_ship.mesh.position.y;
         var zShip = g_ship.mesh.position.z;;
              
-		
         if(g_asteroids[index].mesh.position.x > g_maxSize + xShip || g_asteroids[index].mesh.position.y > g_maxSize + yShip || g_asteroids[index].mesh.position.z > g_maxSize + zShip)
         {
-		
-			g_asteroids[index].mesh.position.x = x;
-			g_asteroids[index].mesh.position.y = y;
-			g_asteroids[index].mesh.position.z = z;
-//            g_asteroids[index].mesh.dispose(false);
-//            g_asteroids.splice(index, 1);
-//            makeAsteroid(1);
+            g_asteroids[index].mesh.position.x = x;
+            g_asteroids[index].mesh.position.y = y;
+            g_asteroids[index].mesh.position.z = z;
         }
         
         else if(g_asteroids[index].mesh.position.x < -g_maxSize + xShip || g_asteroids[index].mesh.position.y < -g_maxSize + yShip || g_asteroids[index].mesh.position.z < -g_maxSize + zShip)
         {    
-			g_asteroids[index].mesh.position.x = x;
-			g_asteroids[index].mesh.position.y = y;
-			g_asteroids[index].mesh.position.z = z;
-//            g_asteroids[index].mesh.dispose(false);
-//            g_asteroids.splice(index, 1);
-//            makeAsteroid(1);
+            g_asteroids[index].mesh.position.x = x;
+            g_asteroids[index].mesh.position.y = y;
+            g_asteroids[index].mesh.position.z = z;
         }
     }
 }
@@ -239,25 +244,26 @@ function makeAsteroid(amount)
     // Box with 600 x 600 x 600
     for(var index = 0; index < amount; index++)
     {
-        //BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
-        //{ 
-            var x, y, z;
+        var x, y, z;
 
-            x = getRandomNumber(-100, 100);// + g_ship.mesh.position.x;
-            y = getRandomNumber(-100, 100);// + g_ship.mesh.position.y;
-            z = getRandomNumber(-100, 100);// + g_ship.mesh.position.z;
+        x = getRandomNumber(-g_constAsteroids.maxX, g_constAsteroids.maxX);
+        y = getRandomNumber(-g_constAsteroids.maxY, g_constAsteroids.maxY);
+        z = getRandomNumber(-g_constAsteroids.maxZ, g_constAsteroids.maxZ);
 
-            var vX = (getRandomNumber(-1, 1) - 1) / 2;
-            var vY = (getRandomNumber(-1, 1) - 1) / 2;
-            var vZ = (getRandomNumber(-1, 1) - 1) / 2;
-			
-			var newMesh = g_large.clone("0");
-            newMesh.position = new BABYLON.Vector3(x, y, z); 
-            newMesh.scaling.x = .15; 
-            newMesh.scaling.y = .15; 
-            newMesh.scaling.z = .15; 
-            g_asteroids.push(new Asteroid(vX, vY, vZ, x, y, z, newMesh));
-        //});
+        var vX = (getRandomNumber(-1, 1) - 1);
+        var vY = (getRandomNumber(-1, 1) - 1);
+        var vZ = (getRandomNumber(-1, 1) - 1);
+
+        var newMesh = g_large.clone("0");
+
+        if(getRandomNumber(0, 1) === 1)
+            newMesh = g_small.clone("0");
+
+        newMesh.position = new BABYLON.Vector3(x, y, z); 
+        newMesh.scaling.x = .15; 
+        newMesh.scaling.y = .15; 
+        newMesh.scaling.z = .15; 
+        g_asteroids.push(new Asteroid(vX, vY, vZ, x, y, z, newMesh));
     }
 }
 
