@@ -15,6 +15,7 @@ var g_maxSize = 234;
 var g_shipInited = false;
 var g_timeInit = 0;
 var g_timeEnd = 0;
+var g_gameEnded = false;
 
 window.onload = function(){
     var canvas = document.getElementById("canvas");
@@ -58,7 +59,7 @@ window.onload = function(){
         BABYLON.SceneLoader.ImportMesh("asteroid0", "models/scene/", "scene.babylon", g_scene, function (newMeshes)
         { 
             g_small = newMeshes[0];
-            g_small.position = new BABYLON.Vector3(0, 0, 0); 
+            g_small.position = new BABYLON.Vector3(100000, 0, 0); 
             g_small.scaling.x = 1; 
             g_small.scaling.y = 1; 
             g_small.scaling.z = 1; 
@@ -67,7 +68,7 @@ window.onload = function(){
         BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
         { 
             g_large = newMeshes[0];
-            g_large.position = new BABYLON.Vector3(0, 0, 0);
+            g_large.position = new BABYLON.Vector3(100000, 0, 0);
             g_large.scaling.x = .2; 
             g_large.scaling.y = .2; 
             g_large.scaling.z = .2; 
@@ -92,7 +93,7 @@ window.onload = function(){
 
 function updateAsteroids()
 {
-	var x, y, z;
+    var x, y, z;
 	
     for(var index = 0; index < g_asteroids.length; index++)
     {
@@ -125,29 +126,31 @@ function updateAsteroids()
 }
 function gameLoop()
 {
-	var done = false;
+    if(!g_gameEnded)
+    {
         updateAsteroids();
-	for(var i = 0; i < g_asteroids.length && done == false; i++) 
-	{
-		if(g_ship.mesh.intersectsPoint(g_asteroids[i].mesh.position)) 
-		{
-			g_ship.health -= 10;
-			document.getElementById("health").innerHTML="Health: "+g_ship.health;
 
-			if(g_ship.health < 0)
-			{
-				g_ship.health = 0;
-                                g_timeEnd = new Date().getTime() / 1000;
-				alert("GAME OVER: Took you " + Math.floor(g_timeEnd - g_timeInit) + " seconds to die.");
-				done = true;
-				break;
-			}
-		}
-	}
-	if( done ) 
-            setTimeout(function () { location.reload() }, 500);
-	
-    g_scene.render();
+        for(var i = 0; i < g_asteroids.length; i++) 
+        {
+            if(g_ship.mesh.intersectsPoint(g_asteroids[i].mesh.position)) 
+            {
+                g_ship.health -= 10;
+                document.getElementById("health").innerHTML="Health: "+g_ship.health;
+
+                if(g_ship.health < 0)
+                {
+                    g_ship.health = 0;
+                    g_timeEnd = new Date().getTime() / 1000;
+                    alert("GAME OVER: Took you " + Math.floor(g_timeEnd - g_timeInit) + " seconds to die.");
+                    g_gameEnded = true;
+                    location.reload();
+                    break;
+                }
+            }
+        }
+        
+        g_scene.render();
+    }
 }
 
 function moveShip(ship, keyCode)
@@ -250,9 +253,9 @@ function makeAsteroid(amount)
         y = getRandomNumber(-g_constAsteroids.maxY, g_constAsteroids.maxY);
         z = getRandomNumber(-g_constAsteroids.maxZ, g_constAsteroids.maxZ);
 
-        var vX = (getRandomNumber(-1, 1) - 1);
-        var vY = (getRandomNumber(-1, 1) - 1);
-        var vZ = (getRandomNumber(-1, 1) - 1);
+        var vX = (getRandomNumber(-1, 1) - 1) / 2;
+        var vY = (getRandomNumber(-1, 1) - 1) / 2;
+        var vZ = (getRandomNumber(-1, 1) - 1) / 2;
 
         var newMesh = g_large.clone("0");
 
