@@ -16,6 +16,8 @@ var g_shipInited = false;
 var g_timeInit = 0;
 var g_timeEnd = 0;
 var g_gameEnded = false;
+var g_fountain;
+var g_particleSystem;
 
 window.onload = function(){
     var canvas = document.getElementById("canvas");
@@ -44,11 +46,63 @@ window.onload = function(){
         g_scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
         g_scene.fogDensity = 0.01;
         
+        // Fountain
+        g_fountain = BABYLON.Mesh.CreateBox("fountain", 1.0, g_scene);
+        g_particleSystem = new BABYLON.ParticleSystem("particles", 2000, g_scene);
+        g_particleSystem.particleTexture = new BABYLON.Texture("images/Flare.png", g_scene);
+        
+        // Where the particles come from
+        g_particleSystem.emitter = g_fountain;
+        g_particleSystem.minEmitBox = new BABYLON.Vector3(-1, 0, 0);    // Starting from
+        g_particleSystem.maxEmitBox = new BABYLON.Vector3(1, 0, 0);     // to...
+        
+        // Color of all particles
+        g_particleSystem.color1 = new BABYLON.Color4(0.7, 0.8, 1.0, 1.0);
+        g_particleSystem.color2 = new BABYLON.Color4(0.2, 0.5, 1.0, 1.0);
+        g_particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
+        
+        // Size of each particle (random between...
+        g_particleSystem.minSize = 0.1;
+        g_particleSystem.maxSize = 0.5;
+        
+        // Life time of each particle (random between ...
+        g_particleSystem.minLifeTime = 0.3;
+        g_particleSystem.maxLifeTime = 1.5;
+        
+        // Emission rate
+        g_particleSystem.emitRate = 1500;
+        
+        // Blend mode: BLENDMODE_ONEONE, or BLENDMODE_STANDARD
+        g_particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
+        
+        // No gravity yo...
+        
+        // Direction of each particle after it has been emitted
+        g_particleSystem.direction1 = new BABYLON.Vector3(-7, 8, 3);
+        g_particleSystem.direction2 = new BABYLON.Vector3(7, 8, -3);
+        
+        // Angular speed, in radians
+        g_particleSystem.minAngularSpeed = 0;
+        g_particleSystem.maxAngularSpeed = Math.PI;
+        
+        g_particleSystem.targetStopDuration = 3;
+        
+        // Speed
+        g_particleSystem.minEmitPower = 1;
+        g_particleSystem.maxEmitPower = 3;
+        g_particleSystem.updateSpeed = 0.005;
+        
+        // Dispose
+        g_particleSystem.disposeOnStop = true;
+        
+        // Start the particle system
+        g_particleSystem.start();
+        
         // Load models
         BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
         { 
             g_ship = newMeshes[0]; 
-            g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0); 
+            g_camera.target = g_fountain.position = g_ship.position = new BABYLON.Vector3(0, 0, 0); 
             g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); 
             g_ship.mesh.scaling.x = .2; 
             g_ship.mesh.scaling.y = .2; 
@@ -56,14 +110,14 @@ window.onload = function(){
             g_camera.setPosition(new BABYLON.Vector3(0, 0, -50));
         });
         
-        BABYLON.SceneLoader.ImportMesh("asteroid0", "models/scene/", "scene.babylon", g_scene, function (newMeshes)
-        { 
-            g_small = newMeshes[0];
-            g_small.position = new BABYLON.Vector3(100000, 0, 0); 
-            g_small.scaling.x = 1; 
-            g_small.scaling.y = 1; 
-            g_small.scaling.z = 1; 
-        });
+//        BABYLON.SceneLoader.ImportMesh("asteroid0", "models/scene/", "scene.babylon", g_scene, function (newMeshes)
+//        { 
+//            g_small = newMeshes[0];
+//            g_small.position = new BABYLON.Vector3(100000, 0, 0); 
+//            g_small.scaling.x = 1; 
+//            g_small.scaling.y = 1; 
+//            g_small.scaling.z = 1; 
+//        });
         
         BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
         { 
@@ -127,7 +181,8 @@ function gameLoop()
     if(!g_gameEnded)
     {
         updateAsteroids();
-
+        g_particleSystem.start();
+        
         for(var i = 0; i < g_asteroids.length; i++) 
         {
             if(g_ship.mesh.intersectsPoint(g_asteroids[i].mesh.position)) 
