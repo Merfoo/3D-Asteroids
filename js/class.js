@@ -67,6 +67,8 @@ Ship = function( vX, vY, vZ, rX, rY, rZ, mesh )
     this.shield = 100;
     this.ammo = 100;
     this.lives = 3;
+    
+    this.head;
 }
 
 //a Ship, bIsHit flag tells you when the laser has hit something
@@ -87,7 +89,7 @@ Pickup = function( mesh, type, amount )
     this.mesh = mesh;
     this.x = mesh.position.x;
     this.y = mesh.position.y;
-    this.z = mesn.position.z;
+    this.z = mesh.position.z;
 
     this.type = type;
     this.amount = amount;
