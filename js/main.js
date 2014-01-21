@@ -1,5 +1,5 @@
 var g_scene;
-var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, space: 32};
+var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, space: 32, m: 77};
 var g_constAsteroids = { maxX: 225, maxY: 225, maxZ: 225};
 var g_asteroids = new Array();
 var g_ship;
@@ -11,6 +11,7 @@ var g_timeEnd = 0;
 var g_gameEnded = false;
 var g_fountain;
 var g_particleSystem;
+var g_music = true;
 
 window.onload = function(){
     var canvas = document.getElementById("canvas");
@@ -226,7 +227,16 @@ function moveShip(ship, keyCode)
         case g_keyboardIds.e:
             ship.mesh.rotation.x += g_ship.rX * Math.PI / 180;
             break;
-        
+
+        case g_keyboardIds.m:
+            if (g_music) {
+                document.getElementById("musicPlayer").pause();
+                g_music = false;
+            }
+            else {
+                document.getElementById("musicPlayer").play();
+                g_music = true;
+            }
         default:
             break;
     }
