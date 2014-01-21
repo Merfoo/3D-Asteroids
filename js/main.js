@@ -62,8 +62,8 @@ window.onload = function(){
         g_particleSystem.maxSize = 0.5;
         
         // Life time of each particle (random between ...
-        g_particleSystem.minLifeTime = 0.3;
-        g_particleSystem.maxLifeTime = .7;
+        g_particleSystem.minLifeTime = 0.2;
+        g_particleSystem.maxLifeTime = .5;
         
         // Emission rate
         g_particleSystem.emitRate = 30000;
