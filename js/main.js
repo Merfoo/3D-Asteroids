@@ -126,6 +126,7 @@ window.onload = function(){
             g_large.scaling.x = .2; 
             g_large.scaling.y = .2; 
             g_large.scaling.z = .2; 
+            initAsteroids(100);
         });
         
         BABYLON.SceneLoader.ImportMesh("laser", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
@@ -138,7 +139,6 @@ window.onload = function(){
         });
         
         g_scene.executeWhenReady(function(){
-            initAsteroids(100);
             // Once the scene is loaded, just register a render loop to render it
             engine.runRenderLoop(function () {
                 gameLoop();
@@ -330,7 +330,7 @@ function initAsteroids(amount)
         var vY = (getRandomNumber(-10, 10) - 1) / 18.0;
         var vZ = (getRandomNumber(-10, 10) - 1) / 18.0;
         
-        var newMesh = g_large.clone("0");
+        var newMesh = g_large.clone();
 
         newMesh.position = new BABYLON.Vector3(x, y, z); 
         newMesh.scaling.x = (Math.random() * 0.2) + 0.15;
