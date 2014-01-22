@@ -1,7 +1,11 @@
 var g_scene;
-var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, space: 32, m: 77};
+var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, m: 77};
 var g_constAsteroids = { maxX: 225, maxY: 225, maxZ: 225};
 var g_asteroids = new Array();
+var g_mainLazer;
+var g_mouseAngX = 0;
+var g_mouseAngY = 0;
+var g_lazers = new Array();
 var g_ship;
 var g_camera;
 var g_large;
@@ -49,8 +53,8 @@ window.onload = function(){
         
         // Where the particles come from
         g_particleSystem.emitter = g_fountain;
-        g_particleSystem.minEmitBox = new BABYLON.Vector3(0, 0, -2);    // Starting from
-        g_particleSystem.maxEmitBox = new BABYLON.Vector3(0, 5, 0);     // to...
+        g_particleSystem.minEmitBox = new BABYLON.Vector3(-1, 0, -2);    // Starting from
+        g_particleSystem.maxEmitBox = new BABYLON.Vector3(1, 5, 0);     // to...
         
         // Color of all particles
         g_particleSystem.color1 = new BABYLON.Color4(0.7, 0.8, 1.0, 1.0);
@@ -58,11 +62,11 @@ window.onload = function(){
         g_particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
         
         // Size of each particle (random between...
-        g_particleSystem.minSize = 0.1;
+        g_particleSystem.minSize = 0.2;
         g_particleSystem.maxSize = 0.5;
         
         // Life time of each particle (random between ...
-        g_particleSystem.minLifeTime = 0.2;
+        g_particleSystem.minLifeTime = 0.3;
         g_particleSystem.maxLifeTime = .5;
         
         // Emission rate
@@ -74,8 +78,8 @@ window.onload = function(){
         // No gravity yo...
         
         // Direction of each particle after it has been emitted
-        g_particleSystem.direction1 = new BABYLON.Vector3(-6, 8, 4);
-        g_particleSystem.direction2 = new BABYLON.Vector3(6, 8, -4);
+        g_particleSystem.direction1 = new BABYLON.Vector3(-7, 0, 4);
+        g_particleSystem.direction2 = new BABYLON.Vector3(7, 4, -4);
         
         // Angular speed, in radians
         g_particleSystem.minAngularSpeed = 0;
@@ -111,7 +115,7 @@ window.onload = function(){
             g_ship.head = BABYLON.Mesh.CreateBox("head", 3.0, g_scene);
             g_ship.head.parent = g_ship.mesh;
             g_ship.head.position.y = -100;
-            g_ship.head.position.y = -100;
+            g_ship.head.isVisible = false;
             g_camera.setPosition(new BABYLON.Vector3(0, 0, -50));
         });
         
@@ -122,6 +126,15 @@ window.onload = function(){
             g_large.scaling.x = .2; 
             g_large.scaling.y = .2; 
             g_large.scaling.z = .2; 
+        });
+        
+        BABYLON.SceneLoader.ImportMesh("laser", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
+        { 
+            g_mainLazer = newMeshes[0];
+            g_mainLazer.position = new BABYLON.Vector3(100000, 0, 0);
+            g_mainLazer.scaling.x = .5; 
+            g_mainLazer.scaling.y = .5; 
+            g_mainLazer.scaling.z = .5; 
         });
         
         g_scene.executeWhenReady(function(){
@@ -138,10 +151,27 @@ window.onload = function(){
 
             window.addEventListener("keydown", keyboardEvent, true);
             window.addEventListener("keyup", keyboardEvent, true);
-            canvas.addEventListener("mousemove", mouseEvent, true);
+            canvas.addEventListener("mousemove", mouseMoveEvent, true);
+            canvas.addEventListener("mousedown", mouseDownEvent, true);
         });
     } 
 };
+
+function updateLazers()
+{
+    for(var index = 0; index < g_lazers.length; index++)
+    {
+        g_lazers[index].mesh.position.x += g_lazers[index].vX;
+        g_lazers[index].mesh.position.y += g_lazers[index].vY;
+        g_lazers[index].mesh.position.z += g_lazers[index].vZ;
+        
+        if(outOfBounds(g_lazers[index].mesh.position))
+        {
+            g_lazers[index].mesh.dispose();
+            g_lazers.splice(index, 1);
+        }
+    }
+}
 
 function updateAsteroids()
 {
@@ -150,32 +180,40 @@ function updateAsteroids()
         g_asteroids[index].mesh.rotation.x += g_asteroids[index].rX;
         g_asteroids[index].mesh.rotation.y += g_asteroids[index].rY;
         g_asteroids[index].mesh.rotation.z += g_asteroids[index].rZ;
-        var xAster = g_asteroids[index].mesh.position.x += g_asteroids[index].vX;
-        var yAster = g_asteroids[index].mesh.position.y += g_asteroids[index].vY;
-        var zAster = g_asteroids[index].mesh.position.z += g_asteroids[index].vZ;
-        var xShip = g_ship.mesh.position.x;
-        var yShip = g_ship.mesh.position.y;
-        var zShip = g_ship.mesh.position.z;
-             
-        if(xAster > g_maxSize + xShip || yAster > g_maxSize + yShip || zAster > g_maxSize + zShip || 
-           xAster < -g_maxSize + xShip || yAster < -g_maxSize + yShip || zAster < -g_maxSize + zShip)
+        g_asteroids[index].mesh.position.x += g_asteroids[index].vX;
+        g_asteroids[index].mesh.position.y += g_asteroids[index].vY;
+        g_asteroids[index].mesh.position.z += g_asteroids[index].vZ;
+        
+        if(outOfBounds(g_asteroids[index].mesh.position))
             resetAsteroid(index);
     }
 }
+
 function gameLoop()
 {
     if(!g_gameEnded)
     {
         updateAsteroids();
+        updateLazers();
         g_particleSystem.start();
         
         for(var i = 0; i < g_asteroids.length; i++) 
         {
+            for(var lazerIndex = 0; lazerIndex < g_lazers.length; lazerIndex++)
+            {
+                if(g_asteroids[i].mesh.intersectsPoint(g_lazers[lazerIndex].mesh.position))
+                {    
+                    g_ship.killedAsteroids++;
+                    resetAsteroid(i);
+                    g_lazers[lazerIndex].mesh.dispose();
+                    g_lazers.splice(lazerIndex, 1);
+                }
+            }
+            
             if(g_ship.mesh.intersectsPoint(g_asteroids[i].mesh.position)) 
             {
                 g_ship.health -= 10;
-                document.getElementById("health").innerHTML="Health: "+g_ship.health;
-
+                
                 if(g_ship.health < 0)
                 {
                     g_ship.health = 0;
@@ -186,6 +224,9 @@ function gameLoop()
                     break;
                 }
             }
+            
+            document.getElementById("health").innerHTML="Health: " + g_ship.health + ", Asteroids Killed: " + g_ship.killedAsteroids;
+                
         }
         
         g_scene.render();
@@ -194,7 +235,6 @@ function gameLoop()
 
 function moveShip(ship, keyCode)
 {
-    console.log(g_ship.mesh.position + " " + g_ship.head.position + " " + g_ship.head.getAbsolutePosition());
     var headPosition = g_ship.head.getAbsolutePosition();
     g_ship.vX = (headPosition.x - g_ship.mesh.position.x) / 10;
     g_ship.vY = (headPosition.y - g_ship.mesh.position.y) / 10;
@@ -209,34 +249,25 @@ function moveShip(ship, keyCode)
             break;
             
         case g_keyboardIds.s:
-            ship.mesh.position.z -= g_ship.vZ * 2;
-            break;
-    
-        case g_keyboardIds.a:
             ship.mesh.position.x -= g_ship.vX;
+            ship.mesh.position.y -= g_ship.vY;
+            ship.mesh.position.z -= g_ship.vZ;
             break;
-    
-        case g_keyboardIds.d:
-            ship.mesh.position.x += g_ship.vX;
-            break;
-            
-        case g_keyboardIds.q:
-            ship.mesh.rotation.x -= g_ship.rX * Math.PI / 180;
-            break;
-            
-        case g_keyboardIds.e:
-            ship.mesh.rotation.x += g_ship.rX * Math.PI / 180;
-            break;
-
+        
         case g_keyboardIds.m:
-            if (g_music) {
+            if (g_music) 
+            {
                 document.getElementById("musicPlayer").pause();
                 g_music = false;
             }
-            else {
+
+            else 
+            {
                 document.getElementById("musicPlayer").play();
                 g_music = true;
             }
+            break;
+ 
         default:
             break;
     }
@@ -252,20 +283,39 @@ function keyboardEvent(event)
     }
 }
 
+// Handles mousedown events
+function mouseDownEvent(e)
+{
+    var lazer = g_mainLazer.clone("0");
+    var xShip = g_ship.mesh.position.x;
+    var yShip = g_ship.mesh.position.y;
+    var zShip = g_ship.mesh.position.z;
+    var headPosition = g_ship.head.getAbsolutePosition();
+    var vX = (headPosition.x - xShip) / 16;
+    var vY = (headPosition.y - yShip) / 16;
+    var vZ = (headPosition.z - zShip) / 16;
+    
+    lazer.position = new BABYLON.Vector3(xShip + vX * 1.5, yShip + vY * 1.5, zShip + vZ * 1.5);
+    lazer.rotation.x = g_ship.mesh.rotation.x;
+    lazer.rotation.y = g_ship.mesh.rotation.y;
+    lazer.rotation.z = g_ship.mesh.rotation.z;
+    g_lazers.push(new Laser(vX, vY, vZ, lazer));
+}
+
 //Handles mouse events
-function mouseEvent(e) 
+function mouseMoveEvent(e) 
 {
     var width = window.innerWidth;
     var height = window.innerHeight;
     var constX = Math.abs((Math.PI / 2) / (width / 2));
     var constY = Math.abs((Math.PI / 2) / (height / 2));
-    var mouseX = (e.clientX - (width / 2)) * constX;
-    var mouseY = (e.clientY - (height / 2)) * constY;
+    g_mouseAngX = (e.clientX - (width / 2)) * constX;
+    g_mouseAngY = (e.clientY - (height / 2)) * constY;
     
-    g_ship.mesh.rotation.x = mouseY - (Math.PI / 2);
-    g_ship.mesh.rotation.y = mouseX; 
-    g_camera.beta = (-1 * (mouseY - (Math.PI / 2)));
-    g_camera.alpha = (-1 * (mouseX + (Math.PI / 2)));
+    g_ship.mesh.rotation.x = g_mouseAngY - (Math.PI / 2);
+    g_ship.mesh.rotation.y = g_mouseAngX; 
+    g_camera.beta = (-1 * (g_mouseAngY / 2 - (Math.PI / 2)));
+    g_camera.alpha = (-1 * (g_mouseAngX / 2 + (Math.PI / 2)));
 }
 
 function initAsteroids(amount)
@@ -327,4 +377,17 @@ function toRadian(ang)
 function toDegree(rad)
 {
     return rad * 180 / Math.PI;
+}
+
+function outOfBounds(pos)
+{
+    var xShip = g_ship.mesh.position.x;
+    var yShip = g_ship.mesh.position.y;
+    var zShip = g_ship.mesh.position.z;
+
+    if(pos.x > g_maxSize + xShip || pos.y > g_maxSize + yShip || pos.z > g_maxSize + zShip || 
+       pos.x < -g_maxSize + xShip || pos.y < -g_maxSize + yShip || pos.z < -g_maxSize + zShip)
+        return true;
+    
+    return false;
 }
