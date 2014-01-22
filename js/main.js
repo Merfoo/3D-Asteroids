@@ -15,6 +15,7 @@ var g_timeEnd = 0;
 var g_gameEnded = false;
 var g_fountain;
 var g_particleSystem;
+var g_shipInited = false;
 var g_music = true;
 
 window.onload = function(){
@@ -93,7 +94,7 @@ window.onload = function(){
         g_particleSystem.updateSpeed = 0.005;
         
         // Dispose
-        g_particleSystem.disposeOnStop = true;
+        g_particleSystem.disposeOnStop = false;
         
         // Start the particle system
         g_particleSystem.start();
@@ -117,6 +118,7 @@ window.onload = function(){
             g_ship.head.position.y = -100;
             g_ship.head.isVisible = false;
             g_camera.setPosition(new BABYLON.Vector3(0, 0, -50));
+            g_shipInited = true;
         });
         
         BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
@@ -126,7 +128,7 @@ window.onload = function(){
             g_large.scaling.x = .2; 
             g_large.scaling.y = .2; 
             g_large.scaling.z = .2; 
-            initAsteroids(100);
+            initAsteroids(222);
         });
         
         BABYLON.SceneLoader.ImportMesh("laser", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
@@ -193,9 +195,9 @@ function gameLoop()
 {
     if(!g_gameEnded)
     {
+        moveShip(g_ship);
         updateAsteroids();
         updateLazers();
-        g_particleSystem.start();
         
         for(var i = 0; i < g_asteroids.length; i++) 
         {
@@ -233,53 +235,88 @@ function gameLoop()
     }
 }
 
-function moveShip(ship, keyCode)
+function moveShip(ship)
 {
-    var headPosition = g_ship.head.getAbsolutePosition();
-    g_ship.vX = (headPosition.x - g_ship.mesh.position.x) / 10;
-    g_ship.vY = (headPosition.y - g_ship.mesh.position.y) / 10;
-    g_ship.vZ = (headPosition.z - g_ship.mesh.position.z) / 10;
-    
-    switch(keyCode)
+    if(g_shipInited && (ship.bMoveForward || ship.bMoveBackward))
     {
-        case g_keyboardIds.w:
+        g_particleSystem.start();
+        var headPosition = ship.head.getAbsolutePosition();
+        ship.vX = (headPosition.x - ship.mesh.position.x) / 16;
+        ship.vY = (headPosition.y - ship.mesh.position.y) / 16;
+        ship.vZ = (headPosition.z - ship.mesh.position.z) / 16;
+
+        if(ship.bMoveForward)
+        {       
             ship.mesh.position.x += g_ship.vX;
             ship.mesh.position.y += g_ship.vY;
             ship.mesh.position.z += g_ship.vZ;
-            break;
-            
-        case g_keyboardIds.s:
+        }
+        
+        if(ship.bMoveBackward)
+        {    
             ship.mesh.position.x -= g_ship.vX;
             ship.mesh.position.y -= g_ship.vY;
             ship.mesh.position.z -= g_ship.vZ;
-            break;
-        
-        case g_keyboardIds.m:
-            if (g_music) 
-            {
-                document.getElementById("musicPlayer").pause();
-                g_music = false;
-            }
-
-            else 
-            {
-                document.getElementById("musicPlayer").play();
-                g_music = true;
-            }
-            break;
- 
-        default:
-            break;
+        }
     }
+    
+    else
+        g_particleSystem.stop();
 }
 
 // Handles keyboard events
 function keyboardEvent(event) 
 {    
+    var keyCode = event.keyCode;
+    
     if (event.type === "keydown")
-    {
-        var keyCode = event.keyCode;
-        moveShip(g_ship, keyCode);
+    {        
+        console.log("KeyDown");
+        switch(keyCode)
+        {
+            case g_keyboardIds.w:
+                g_ship.bMoveForward = true;
+                break;
+            
+            case g_keyboardIds.s:
+                g_ship.bMoveBackward = true;
+                break;
+
+            default:
+                break;
+        }
+    }
+    
+    if (event.type === "keyup")
+    {        
+        console.log("KeyUp");
+        switch(keyCode)
+        {
+            case g_keyboardIds.w:
+                g_ship.bMoveForward = false;
+                break;
+            
+            case g_keyboardIds.s:
+                g_ship.bMoveBackward = false;
+                break;
+            
+            case g_keyboardIds.m:
+                if (g_music) 
+                {
+                    document.getElementById("musicPlayer").pause();
+                    g_music = false;
+                }
+
+                else 
+                {
+                    document.getElementById("musicPlayer").play();
+                    g_music = true;
+                }
+                break;
+
+            default:
+                break;
+        }
     }
 }
 

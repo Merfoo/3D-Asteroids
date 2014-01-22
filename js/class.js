@@ -62,6 +62,8 @@ Ship = function( vX, vY, vZ, rX, rY, rZ, mesh )
     this.rY = rY;
     this.rZ = rZ;
 
+    this.bMoveForward = false;
+    this.bMoveBackward = false;
     this.bIsShooting = false;
     this.health = 1000;
     this.killedAsteroids = 0;
