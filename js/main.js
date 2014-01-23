@@ -3,8 +3,8 @@ var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, m: 77};
 var g_constAsteroids = { maxX: 225, maxY: 225, maxZ: 225};
 var g_asteroids = new Array();
 var g_mainLazer;
-var g_mouseAngX = 0;
-var g_mouseAngY = 0;
+var g_mouse = { x: 0, y: 0, lastAngX: 0, lastAngY: 0, angX: 0, angY: 0 }; 
+var g_angOffSet = { x: 0, y: 0 };
 var g_lazers = new Array();
 var g_ship;
 var g_camera;
@@ -42,7 +42,6 @@ window.onload = function(){
 
         //Adding of the Arc Rotate Camera
         g_camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), g_scene);
-        
         // Add fog
         g_scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
         g_scene.fogDensity = 0.005;
@@ -115,7 +114,7 @@ window.onload = function(){
             g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); 
             g_ship.head = BABYLON.Mesh.CreateBox("head", 3.0, g_scene);
             g_ship.head.parent = g_ship.mesh;
-            g_ship.head.position.y = -100;
+            g_ship.head.position.y = -1;
             g_ship.head.isVisible = false;
             g_camera.setPosition(new BABYLON.Vector3(0, 0, -50));
             g_shipInited = true;
@@ -153,8 +152,8 @@ window.onload = function(){
 
             window.addEventListener("keydown", keyboardEvent, true);
             window.addEventListener("keyup", keyboardEvent, true);
-            canvas.addEventListener("mousemove", mouseMoveEvent, true);
-            canvas.addEventListener("mousedown", mouseDownEvent, true);
+            window.addEventListener("mousemove", mouseMoveEvent, true);
+            window.addEventListener("mousedown", mouseDownEvent, true);
         });
     } 
 };
@@ -193,9 +192,9 @@ function updateAsteroids()
 
 function gameLoop()
 {
-    if(!g_gameEnded)
+    if(!g_gameEnded && g_shipInited)
     {
-        moveShip(g_ship);
+        updateShip(g_ship);
         updateAsteroids();
         updateLazers();
         
@@ -235,15 +234,16 @@ function gameLoop()
     }
 }
 
-function moveShip(ship)
+function updateShip(ship)
 {
+    var headPosition = ship.head.getAbsolutePosition();
+    ship.vX = (headPosition.x - ship.mesh.position.x) * 10;
+    ship.vY = (headPosition.y - ship.mesh.position.y) * 10;
+    ship.vZ = (headPosition.z - ship.mesh.position.z) * 10;
+        
     if(g_shipInited && (ship.bMoveForward || ship.bMoveBackward))
     {
         g_particleSystem.start();
-        var headPosition = ship.head.getAbsolutePosition();
-        ship.vX = (headPosition.x - ship.mesh.position.x) / 16;
-        ship.vY = (headPosition.y - ship.mesh.position.y) / 16;
-        ship.vZ = (headPosition.z - ship.mesh.position.z) / 16;
 
         if(ship.bMoveForward)
         {       
@@ -262,6 +262,29 @@ function moveShip(ship)
     
     else
         g_particleSystem.stop();
+
+    var diffX = (g_mouse.angX - g_mouse.lastAngX);
+    var diffY = (g_mouse.angY - g_mouse.lastAngY);
+    
+    if(Math.abs(g_mouse.angY + g_angOffSet.y) < 90)
+    {
+        if(g_mouse.angY > 70 && diffY >= 0)
+            g_angOffSet.y += 1.5;
+
+        if(g_mouse.angY < -70 && diffY <= 0)
+            g_angOffSet.y -= 1.5;
+
+        if(g_mouse.angX > 70 && diffX >= 0)
+            g_angOffSet.x += 1.5;
+
+        if(g_mouse.angX < -70 && diffX <= 0)
+            g_angOffSet.x -= 1.5;
+
+        g_ship.mesh.rotation.x = toRadian(g_mouse.angY - 90 + g_angOffSet.y);
+        g_ship.mesh.rotation.y = toRadian(g_mouse.angX + g_angOffSet.x);
+        g_camera.beta = -1 * toRadian((g_mouse.angY * 0.5) - 80 + g_angOffSet.y);
+        g_camera.alpha = -1 * toRadian((g_mouse.angX * 0.5) + 90 + g_angOffSet.x); 
+    }   
 }
 
 // Handles keyboard events
@@ -271,7 +294,6 @@ function keyboardEvent(event)
     
     if (event.type === "keydown")
     {        
-        console.log("KeyDown");
         switch(keyCode)
         {
             case g_keyboardIds.w:
@@ -289,7 +311,6 @@ function keyboardEvent(event)
     
     if (event.type === "keyup")
     {        
-        console.log("KeyUp");
         switch(keyCode)
         {
             case g_keyboardIds.w:
@@ -328,9 +349,9 @@ function mouseDownEvent(e)
     var yShip = g_ship.mesh.position.y;
     var zShip = g_ship.mesh.position.z;
     var headPosition = g_ship.head.getAbsolutePosition();
-    var vX = (headPosition.x - xShip) / 16;
-    var vY = (headPosition.y - yShip) / 16;
-    var vZ = (headPosition.z - zShip) / 16;
+    var vX = (headPosition.x - xShip) * 20;
+    var vY = (headPosition.y - yShip) * 20;
+    var vZ = (headPosition.z - zShip) * 20;
     
     lazer.position = new BABYLON.Vector3(xShip + vX * 1.5, yShip + vY * 1.5, zShip + vZ * 1.5);
     lazer.rotation.x = g_ship.mesh.rotation.x;
@@ -339,20 +360,17 @@ function mouseDownEvent(e)
     g_lazers.push(new Laser(vX, vY, vZ, lazer));
 }
 
-//Handles mouse events
-function mouseMoveEvent(e) 
+function mouseMoveEvent(e)
 {
-    var width = window.innerWidth;
-    var height = window.innerHeight;
-    var constX = Math.abs((Math.PI / 2) / (width / 2));
-    var constY = Math.abs((Math.PI / 2) / (height / 2));
-    g_mouseAngX = (e.clientX - (width / 2)) * constX;
-    g_mouseAngY = (e.clientY - (height / 2)) * constY;
+    var halfWidth = Math.floor(window.innerWidth / 2);
+    var halfHeight = Math.floor(window.innerHeight / 2);
+    var constX = Math.abs(90 / halfWidth);
+    var constY = Math.abs(90 / halfHeight);
     
-    g_ship.mesh.rotation.x = g_mouseAngY - (Math.PI / 2);
-    g_ship.mesh.rotation.y = g_mouseAngX; 
-    g_camera.beta = (-1 * (g_mouseAngY / 2 - (Math.PI / 2)));
-    g_camera.alpha = (-1 * (g_mouseAngX / 2 + (Math.PI / 2)));
+    g_mouse.lastAngX = g_mouse.angX;
+    g_mouse.lastAngY = g_mouse.angY;
+    g_mouse.angX = ((e.clientX - halfWidth) * constX);
+    g_mouse.angY = ((e.clientY - halfHeight) * constY);
 }
 
 function initAsteroids(amount)
