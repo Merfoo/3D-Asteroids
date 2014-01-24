@@ -15,7 +15,6 @@ var g_timeEnd = 0;
 var g_gameEnded = false;
 var g_fountain;
 var g_particleSystem;
-var g_shipInited = false;
 var g_music = true;
 
 window.onload = function(){
@@ -117,7 +116,6 @@ window.onload = function(){
             g_ship.head.position.y = -1;
             g_ship.head.isVisible = false;
             g_camera.setPosition(new BABYLON.Vector3(0, 0, -50));
-            g_shipInited = true;
         });
         
         BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
@@ -127,7 +125,6 @@ window.onload = function(){
             g_large.scaling.x = .2; 
             g_large.scaling.y = .2; 
             g_large.scaling.z = .2; 
-            initAsteroids(333);
         });
         
         BABYLON.SceneLoader.ImportMesh("laser", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
@@ -140,6 +137,7 @@ window.onload = function(){
         });
         
         g_scene.executeWhenReady(function(){
+            initAsteroids(333);
             // Once the scene is loaded, just register a render loop to render it
             engine.runRenderLoop(function () {
                 g_scene.beforeRender = gameLoop();
@@ -193,7 +191,7 @@ function updateAsteroids()
 
 function gameLoop()
 {
-    if(!g_gameEnded && g_shipInited)
+    if(!g_gameEnded)
     {
         updateShip();
         updateAsteroids();
@@ -240,7 +238,7 @@ function updateShip()
     g_ship.vY = (headPosition.y - g_ship.mesh.position.y) * 10;
     g_ship.vZ = (headPosition.z - g_ship.mesh.position.z) * 10;
         
-    if(g_shipInited && (g_ship.bMoveForward || g_ship.bMoveBackward))
+    if(g_ship.bMoveForward || g_ship.bMoveBackward)
     {
         g_particleSystem.start();
 
