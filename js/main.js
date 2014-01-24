@@ -4,7 +4,7 @@ var g_constAsteroids = { maxX: 225, maxY: 225, maxZ: 225};
 var g_asteroids = new Array();
 var g_mainLazer;
 var g_mouse = { x: 0, y: 0, lastAngX: 0, lastAngY: 0, angX: 0, angY: 0 }; 
-var g_angOffSet = { x: 0, y: 0 };
+var g_angOffSet = { angX: 0, angY: 0, minAng: 70, angInc: 2 };
 var g_lazers = new Array();
 var g_ship;
 var g_camera;
@@ -127,7 +127,7 @@ window.onload = function(){
             g_large.scaling.x = .2; 
             g_large.scaling.y = .2; 
             g_large.scaling.z = .2; 
-            initAsteroids(222);
+            initAsteroids(333);
         });
         
         BABYLON.SceneLoader.ImportMesh("laser", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
@@ -142,7 +142,8 @@ window.onload = function(){
         g_scene.executeWhenReady(function(){
             // Once the scene is loaded, just register a render loop to render it
             engine.runRenderLoop(function () {
-                gameLoop();
+                g_scene.beforeRender = gameLoop();
+                g_scene.render();
             });
         
             // Resize
@@ -194,7 +195,7 @@ function gameLoop()
 {
     if(!g_gameEnded && g_shipInited)
     {
-        updateShip(g_ship);
+        updateShip();
         updateAsteroids();
         updateLazers();
         
@@ -229,61 +230,60 @@ function gameLoop()
             document.getElementById("health").innerHTML="Health: " + g_ship.health + ", Asteroids Killed: " + g_ship.killedAsteroids;
                 
         }
-        
-        g_scene.render();
     }
 }
 
-function updateShip(ship)
+function updateShip()
 {
-    var headPosition = ship.head.getAbsolutePosition();
-    ship.vX = (headPosition.x - ship.mesh.position.x) * 10;
-    ship.vY = (headPosition.y - ship.mesh.position.y) * 10;
-    ship.vZ = (headPosition.z - ship.mesh.position.z) * 10;
+    var headPosition = g_ship.head.getAbsolutePosition();
+    g_ship.vX = (headPosition.x - g_ship.mesh.position.x) * 10;
+    g_ship.vY = (headPosition.y - g_ship.mesh.position.y) * 10;
+    g_ship.vZ = (headPosition.z - g_ship.mesh.position.z) * 10;
         
-    if(g_shipInited && (ship.bMoveForward || ship.bMoveBackward))
+    if(g_shipInited && (g_ship.bMoveForward || g_ship.bMoveBackward))
     {
         g_particleSystem.start();
 
-        if(ship.bMoveForward)
+        if(g_ship.bMoveForward)
         {       
-            ship.mesh.position.x += g_ship.vX;
-            ship.mesh.position.y += g_ship.vY;
-            ship.mesh.position.z += g_ship.vZ;
+            g_ship.mesh.position.x += g_ship.vX;
+            g_ship.mesh.position.y += g_ship.vY;
+            g_ship.mesh.position.z += g_ship.vZ;
         }
         
-        if(ship.bMoveBackward)
+        if(g_ship.bMoveBackward)
         {    
-            ship.mesh.position.x -= g_ship.vX;
-            ship.mesh.position.y -= g_ship.vY;
-            ship.mesh.position.z -= g_ship.vZ;
+            g_ship.mesh.position.x -= g_ship.vX;
+            g_ship.mesh.position.y -= g_ship.vY;
+            g_ship.mesh.position.z -= g_ship.vZ;
         }
     }
     
     else
         g_particleSystem.stop();
 
-    var diffX = (g_mouse.angX - g_mouse.lastAngX);
-    var diffY = (g_mouse.angY - g_mouse.lastAngY);
-    
-    if(Math.abs(g_mouse.angY + g_angOffSet.y) < 90)
+    if(Math.abs(g_mouse.angY + g_angOffSet.angY) <= 111)
     {
-        if(g_mouse.angY > 70 && diffY >= 0)
-            g_angOffSet.y += 1.5;
+        var diffAngX = (g_mouse.angX - g_mouse.lastAngX);
+        var diffAngY = (g_mouse.angY - g_mouse.lastAngY);
+        
+        if(g_mouse.angY > g_angOffSet.minAng && diffAngY >= 0)
+            g_angOffSet.angY += g_angOffSet.angInc;
 
-        if(g_mouse.angY < -70 && diffY <= 0)
-            g_angOffSet.y -= 1.5;
+        if(g_mouse.angY < -g_angOffSet.minAng && diffAngY <= 0)
+            g_angOffSet.angY -= g_angOffSet.angInc;
 
-        if(g_mouse.angX > 70 && diffX >= 0)
-            g_angOffSet.x += 1.5;
+        if(g_mouse.angX > g_angOffSet.minAng && diffAngX >= 0)
+            g_angOffSet.angX += g_angOffSet.angInc;
 
-        if(g_mouse.angX < -70 && diffX <= 0)
-            g_angOffSet.x -= 1.5;
+        if(g_mouse.angX < -g_angOffSet.minAng && diffAngX <= 0)
+            g_angOffSet.angX -= g_angOffSet.angInc;
 
-        g_ship.mesh.rotation.x = toRadian(g_mouse.angY - 90 + g_angOffSet.y);
-        g_ship.mesh.rotation.y = toRadian(g_mouse.angX + g_angOffSet.x);
-        g_camera.beta = -1 * toRadian((g_mouse.angY * 0.5) - 80 + g_angOffSet.y);
-        g_camera.alpha = -1 * toRadian((g_mouse.angX * 0.5) + 90 + g_angOffSet.x); 
+        console.log(g_angOffSet);
+        g_ship.mesh.rotation.x = toRadian(g_mouse.angY - 90 + g_angOffSet.angY);
+        g_ship.mesh.rotation.y = toRadian(g_mouse.angX + g_angOffSet.angX);
+        g_camera.beta = -1 * toRadian((g_mouse.angY * 0.69) - 80 + g_angOffSet.angY);
+        g_camera.alpha = -1 * toRadian((g_mouse.angX * 0.69) + 90 + g_angOffSet.angX); 
     }   
 }
 
