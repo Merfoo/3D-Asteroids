@@ -99,24 +99,43 @@ window.onload = function(){
         g_particleSystem.start();
        
         // Attach the camera to the scene
-        //g_scene.activeCamera.attachControl(canvas);
-    
+        g_scene.activeCamera.attachControl(canvas);
+        
         // Load models
-        BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
+//        BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
+//        { 
+//            g_ship = newMeshes[0]; 
+//            g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0);
+//            g_fountain.position = g_ship.position;
+//            g_fountain.rotation = g_ship.rotation;
+//            g_ship.scaling.x = .2; 
+//            g_ship.scaling.y = .2; 
+//            g_ship.scaling.z = .2; 
+//            g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); 
+//            g_ship.head = BABYLON.Mesh.CreateBox("head", 3.0, g_scene);
+//            g_ship.head.parent = g_ship.mesh;
+//            g_ship.head.position.y = -1;
+//            g_ship.head.isVisible = false;
+//            g_camera.setPosition(new BABYLON.Vector3(0, 0, -50));
+//            g_shipInited = true;
+//        });
+        
+        BABYLON.SceneLoader.ImportMesh("", "models/exampleScene/", "Viper.babylon", g_scene, function (newMeshes) 
         { 
             g_ship = newMeshes[0]; 
             g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0);
+            g_ship.rotation.y = 0;
             g_fountain.position = g_ship.position;
             g_fountain.rotation = g_ship.rotation;
-            g_ship.scaling.x = .2; 
-            g_ship.scaling.y = .2; 
-            g_ship.scaling.z = .2; 
+            g_ship.scaling.x = 1; 
+            g_ship.scaling.y = 1; 
+            g_ship.scaling.z = 1; 
             g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); 
             g_ship.head = BABYLON.Mesh.CreateBox("head", 3.0, g_scene);
             g_ship.head.parent = g_ship.mesh;
-            g_ship.head.position.y = -1;
+            g_ship.head.position.x = -1;
             g_ship.head.isVisible = false;
-            g_camera.setPosition(new BABYLON.Vector3(0, 0, -50));
+            g_camera.setPosition(new BABYLON.Vector3(50, 0, 0));
             g_shipInited = true;
         });
         
@@ -130,14 +149,14 @@ window.onload = function(){
             initAsteroids(333);
         });
         
-        BABYLON.SceneLoader.ImportMesh("laser", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
-        { 
-            g_mainLazer = newMeshes[0];
-            g_mainLazer.position = new BABYLON.Vector3(100000, 0, 0);
-            g_mainLazer.scaling.x = .5; 
-            g_mainLazer.scaling.y = .5; 
-            g_mainLazer.scaling.z = .5; 
-        });
+//        BABYLON.SceneLoader.ImportMesh("laser", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
+//        { 
+//            g_mainLazer = newMeshes[0];
+//            g_mainLazer.position = new BABYLON.Vector3(100000, 0, 0);
+//            g_mainLazer.scaling.x = .5; 
+//            g_mainLazer.scaling.y = .5; 
+//            g_mainLazer.scaling.z = .5; 
+//        });
         
         g_scene.executeWhenReady(function(){
             // Once the scene is loaded, just register a render loop to render it
@@ -195,6 +214,8 @@ function gameLoop()
 {
     if(!g_gameEnded && g_shipInited)
     {
+        //console.log(g_ship.mesh.position + " Pos: " + g_camera.position);
+        console.log(toDegree(g_ship.mesh.rotation.y) + " " + toDegree(g_ship.mesh.rotation.z) + " Ang: " + toDegree(g_camera.beta) + " " + toDegree(g_camera.alpha));
         updateShip();
         updateAsteroids();
         updateLazers();
@@ -236,9 +257,9 @@ function gameLoop()
 function updateShip()
 {
     var headPosition = g_ship.head.getAbsolutePosition();
-    g_ship.vX = (headPosition.x - g_ship.mesh.position.x) * 10;
-    g_ship.vY = (headPosition.y - g_ship.mesh.position.y) * 10;
-    g_ship.vZ = (headPosition.z - g_ship.mesh.position.z) * 10;
+    g_ship.vX = (headPosition.x - g_ship.mesh.position.x) * 5;
+    g_ship.vY = (headPosition.y - g_ship.mesh.position.y) * 5;
+    g_ship.vZ = (headPosition.z - g_ship.mesh.position.z) * 5;
         
     if(g_shipInited && (g_ship.bMoveForward || g_ship.bMoveBackward))
     {
@@ -279,11 +300,10 @@ function updateShip()
         if(g_mouse.angX < -g_angOffSet.minAng && diffAngX <= 0)
             g_angOffSet.angX -= g_angOffSet.angInc;
 
-        console.log(g_angOffSet);
-        g_ship.mesh.rotation.x = toRadian(g_mouse.angY - 90 + g_angOffSet.angY);
         g_ship.mesh.rotation.y = toRadian(g_mouse.angX + g_angOffSet.angX);
-        g_camera.beta = -1 * toRadian((g_mouse.angY * 0.69) - 80 + g_angOffSet.angY);
-        g_camera.alpha = -1 * toRadian((g_mouse.angX * 0.69) + 90 + g_angOffSet.angX); 
+        g_ship.mesh.rotation.z = toRadian(g_mouse.angY + g_angOffSet.angY);
+        g_camera.beta = -1 * toRadian((g_mouse.angY * .69) - 80 + g_angOffSet.angY);
+        g_camera.alpha = -1 * toRadian((g_mouse.angX * .69) + g_angOffSet.angX); 
     }   
 }
 
@@ -344,21 +364,39 @@ function keyboardEvent(event)
 // Handles mousedown events
 function mouseDownEvent(e)
 {
-    var lazer = g_mainLazer.clone("0");
+    var lazer = BABYLON.Mesh.CreateSphere("lazer", 25, 3, g_scene);
+    lazer.material = new BABYLON.StandardMaterial("texture1", g_scene);
+    lazer.material.diffuseTexture = new BABYLON.Texture("images/Flare.png", g_scene);
     var xShip = g_ship.mesh.position.x;
     var yShip = g_ship.mesh.position.y;
     var zShip = g_ship.mesh.position.z;
     var headPosition = g_ship.head.getAbsolutePosition();
-    var vX = (headPosition.x - xShip) * 20;
-    var vY = (headPosition.y - yShip) * 20;
-    var vZ = (headPosition.z - zShip) * 20;
+    var vX = (headPosition.x - xShip) * 7;
+    var vY = (headPosition.y - yShip) * 7;
+    var vZ = (headPosition.z - zShip) * 7;
     
     lazer.position = new BABYLON.Vector3(xShip + vX * 1.5, yShip + vY * 1.5, zShip + vZ * 1.5);
-    lazer.rotation.x = g_ship.mesh.rotation.x;
-    lazer.rotation.y = g_ship.mesh.rotation.y;
-    lazer.rotation.z = g_ship.mesh.rotation.z;
     g_lazers.push(new Laser(vX, vY, vZ, lazer));
 }
+
+//// Handles mousedown events
+//function mouseDownEvent(e)
+//{
+//    var lazer = g_mainLazer.clone("0");
+//    var xShip = g_ship.mesh.position.x;
+//    var yShip = g_ship.mesh.position.y;
+//    var zShip = g_ship.mesh.position.z;
+//    var headPosition = g_ship.head.getAbsolutePosition();
+//    var vX = (headPosition.x - xShip) * 10;
+//    var vY = (headPosition.y - yShip) * 10;
+//    var vZ = (headPosition.z - zShip) * 10;
+//    
+//    lazer.position = new BABYLON.Vector3(xShip + vX * 1.5, yShip + vY * 1.5, zShip + vZ * 1.5);
+//    lazer.rotation.x = g_ship.mesh.rotation.x - toRadian(0);
+//    lazer.rotation.y = g_ship.mesh.rotation.y - toRadian(45);
+//    lazer.rotation.z = g_ship.mesh.rotation.z - toRadian(0);
+//    g_lazers.push(new Laser(vX, vY, vZ, lazer));
+//}
 
 function mouseMoveEvent(e)
 {
