@@ -1,16 +1,21 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
  <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
-    <script src="js/babylon.js"></script>
-    <script src="js/hand.js"></script>
-    <script src="js/main.js"></script>
-    <title>Babylon - Basic scene</title>
- </head>
- <body onload="init();">
-    <div id="rootDiv">
-        <canvas id="renderCanvas"></canvas>
-    </div>
- </body>
+    <script type="text/javascript" src="js/babylon.js"></script>
+    <script type="text/javascript" src="js/class.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+    <title>3D Kamikaze Asteroid</title>
+</head>
+    <body>
+        <audio id="musicPlayer" preload ="auto" autoplay="autoplay" loop="loop" controls="controls" hidden>
+            <source src="music/st.mp3" type="audio/mpeg">
+            <source src="music/st.ogg" type="audio/ogg">
+            <embed height="50" width="100" src="st.mp3">
+        </audio>
+        <p id="health" unselectable="on" class="unselectable"></p>
+        <canvas id="canvas"></canvas>
+    </body>
 </html>
