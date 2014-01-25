@@ -45,58 +45,6 @@ window.onload = function(){
         // Add fog
         g_scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
         g_scene.fogDensity = 0.005;
-        
-        // Fountain
-        g_fountain = BABYLON.Mesh.CreateBox("fountain", 1.0, g_scene);
-        g_particleSystem = new BABYLON.ParticleSystem("particles", 2000, g_scene);
-        g_particleSystem.particleTexture = new BABYLON.Texture("images/Flare.png", g_scene);
-        
-        // Where the particles come from
-        g_particleSystem.emitter = g_fountain;
-        g_particleSystem.minEmitBox = new BABYLON.Vector3(-1, 0, -2);    // Starting from
-        g_particleSystem.maxEmitBox = new BABYLON.Vector3(1, 5, 0);     // to...
-        
-        // Color of all particles
-        g_particleSystem.color1 = new BABYLON.Color4(0.7, 0.8, 1.0, 1.0);
-        g_particleSystem.color2 = new BABYLON.Color4(0.2, 0.5, 1.0, 1.0);
-        g_particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
-        
-        // Size of each particle (random between...
-        g_particleSystem.minSize = 0.2;
-        g_particleSystem.maxSize = 0.5;
-        
-        // Life time of each particle (random between ...
-        g_particleSystem.minLifeTime = 0.3;
-        g_particleSystem.maxLifeTime = .5;
-        
-        // Emission rate
-        g_particleSystem.emitRate = 30000;
-        
-        // Blend mode: BLENDMODE_ONEONE, or BLENDMODE_STANDARD
-        g_particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
-        
-        // No gravity yo...
-        
-        // Direction of each particle after it has been emitted
-        g_particleSystem.direction1 = new BABYLON.Vector3(-7, 0, 4);
-        g_particleSystem.direction2 = new BABYLON.Vector3(7, 4, -4);
-        
-        // Angular speed, in radians
-        g_particleSystem.minAngularSpeed = 0;
-        g_particleSystem.maxAngularSpeed = Math.PI/4;
-        
-        g_particleSystem.targetStopDuration = 3;
-        
-        // Speed
-        g_particleSystem.minEmitPower = 1;
-        g_particleSystem.maxEmitPower = 3;
-        g_particleSystem.updateSpeed = 0.005;
-        
-        // Dispose
-        g_particleSystem.disposeOnStop = false;
-        
-        // Start the particle system
-        g_particleSystem.start();
        
         // Attach the camera to the scene
         //g_scene.activeCamera.attachControl(canvas);
@@ -106,11 +54,10 @@ window.onload = function(){
         { 
             g_ship = newMeshes[0]; 
             g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0);
-            g_fountain.position = g_ship.position;
-            g_fountain.rotation = g_ship.rotation;
             g_ship.scaling.x = .2; 
             g_ship.scaling.y = .2; 
             g_ship.scaling.z = .2; 
+            g_particleSystem = makeParticle(g_ship);
             g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); 
             g_ship.head = BABYLON.Mesh.CreateBox("head", 3.0, g_scene);
             g_ship.head.parent = g_ship.mesh;
@@ -445,4 +392,33 @@ function outOfBounds(pos)
         return true;
     
     return false;
+}
+
+function makeParticle(mesh)
+{
+        particleSystem = new BABYLON.ParticleSystem("particles", 2000, g_scene);
+        particleSystem.particleTexture = new BABYLON.Texture("images/Flare.png", g_scene);
+        particleSystem.emitter = mesh;                              // Where the particles come from
+        particleSystem.minEmitBox = new BABYLON.Vector3(-4, 0, -10);    // Starting from
+        particleSystem.maxEmitBox = new BABYLON.Vector3(4, 0, 0);     // to...
+        particleSystem.color1 = new BABYLON.Color4(0.7, 0.8, 1.0, 1.0);
+        particleSystem.color2 = new BABYLON.Color4(0.2, 0.5, 1.0, 1.0);
+        particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
+        particleSystem.minSize = 0.2;
+        particleSystem.maxSize = 0.5;
+        particleSystem.minLifeTime = 0.3;
+        particleSystem.maxLifeTime = 0.5;
+        particleSystem.emitRate = 30000;
+        particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
+        particleSystem.direction1 = new BABYLON.Vector3(-70, -40, -40);
+        particleSystem.direction2 = new BABYLON.Vector3(70, 40, 40);
+        particleSystem.minAngularSpeed = 0;
+        particleSystem.maxAngularSpeed = Math.PI/4;
+        particleSystem.targetStopDuration = 0;
+        particleSystem.minEmitPower = 1;
+        particleSystem.maxEmitPower = 3;
+        particleSystem.updateSpeed = 0.005;
+        particleSystem.disposeOnStop = false;
+        
+        return particleSystem;
 }
