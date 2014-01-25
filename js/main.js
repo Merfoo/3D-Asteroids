@@ -13,8 +13,6 @@ var g_maxSize = 300;
 var g_timeInit = 0;
 var g_timeEnd = 0;
 var g_gameEnded = false;
-var g_fountain;
-var g_particleSystem;
 var g_shipInited = false;
 var g_music = true;
 
@@ -54,18 +52,19 @@ window.onload = function(){
         BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
         { 
             g_ship = newMeshes[0]; 
-            g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0);
+            g_ship.position = new BABYLON.Vector3(0, 0, 0);
             g_ship.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
-            g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); 
+            g_ship = new Ship(g_ship); 
             g_ship.head = BABYLON.Mesh.CreateBox("head", 3.0, g_scene);
             g_ship.head.parent = g_ship.mesh;
             g_ship.head.position = new BABYLON.Vector3(0, -5, 0);
             g_ship.head.isVisible = false;
-            g_particleSystem = makeParticle(g_ship.head);
-            particleSystem.minEmitBox = new BABYLON.Vector3(-4, 33, -8);    // (width, depth, height)
-            particleSystem.maxEmitBox = new BABYLON.Vector3(4, 50, 0);     
-            particleSystem.direction1 = new BABYLON.Vector3(-333, 0, -333); // (width, depth, height)
-            particleSystem.direction2 = new BABYLON.Vector3(333, 333, 333);
+            g_ship.particleSystem = makeParticle(g_ship.head);
+            g_ship.particleSystem.minEmitBox = new BABYLON.Vector3(-4, 33, -8);    // (width, depth, height)
+            g_ship.particleSystem.maxEmitBox = new BABYLON.Vector3(4, 50, 0);     
+            g_ship.particleSystem.direction1 = new BABYLON.Vector3(-333, 0, -333); // (width, depth, height)
+            g_ship.particleSystem.direction2 = new BABYLON.Vector3(333, 333, 333);
+            g_camera.target = g_ship.mesh.position;
             g_camera.setPosition(new BABYLON.Vector3(0, 0, -50));
             g_shipInited = true;
         });
@@ -192,7 +191,7 @@ function updateShip()
     
     if(g_shipInited && (g_ship.bMoveForward || g_ship.bMoveBackward))
     {
-        g_particleSystem.start();
+        g_ship.particleSystem.start();
 
         if(g_ship.bMoveForward)
         {       
@@ -210,8 +209,8 @@ function updateShip()
     }
     
     else
-        g_particleSystem.stop();
-
+        g_ship.particleSystem.stop();
+    
     if(Math.abs(g_mouse.angY + g_angOffSet.angY) <= 111)
     {
         var diffAngX = (g_mouse.angX - g_mouse.lastAngX);
@@ -400,7 +399,7 @@ function outOfBounds(pos)
 
 function makeParticle(mesh)
 {
-        particleSystem = new BABYLON.ParticleSystem("particles", 2000, g_scene);
+        var particleSystem = new BABYLON.ParticleSystem("particles", 2000, g_scene);
         particleSystem.particleTexture = new BABYLON.Texture("images/Flare.png", g_scene);
         particleSystem.emitter = mesh;                              
         particleSystem.minEmitBox = new BABYLON.Vector3(-4, -4, -4);    // (width, depth, height)
