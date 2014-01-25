@@ -64,6 +64,10 @@ Ship = function( vX, vY, vZ, rX, rY, rZ, mesh )
 
     this.bMoveForward = false;
     this.bMoveBackward = false;
+    this.bRotateUp = false;
+    this.bRotateDown = false;
+    this.bRotateLeft = false;
+    this.bRotateRight = false;
     this.bIsShooting = false;
     this.health = 1000;
     this.killedAsteroids = 0;
