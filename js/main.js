@@ -438,7 +438,7 @@ function makeShipParticle(mesh)
         particleSystem.maxSize = 3.5;
         particleSystem.minLifeTime = 0.01;
         particleSystem.maxLifeTime = 0.03;
-        particleSystem.emitRate = 750;
+        particleSystem.emitRate = 500;
         particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
         particleSystem.direction1 = new BABYLON.Vector3(0, 10, -0); // (width, depth, height)
         particleSystem.direction2 = new BABYLON.Vector3(0, -10, 0);
@@ -467,7 +467,7 @@ function makeLazerParticle(mesh)
     particleSystem.maxSize = 1.5;
     particleSystem.minLifeTime = 0.033;
     particleSystem.maxLifeTime = 0.033;
-    particleSystem.emitRate = 750;
+    particleSystem.emitRate = 500;
     particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
     particleSystem.direction1 = new BABYLON.Vector3(-2, -2, -2); // (width, depth, height)
     particleSystem.direction2 = new BABYLON.Vector3(2, 2, 2);
