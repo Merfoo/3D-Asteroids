@@ -49,7 +49,7 @@ window.onload = function(){
         //g_scene.activeCamera.attachControl(canvas);
     
         // Load models
-        BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
+        BABYLON.SceneLoader.ImportMesh("him", "models/scene/", "Dude.babylon", g_scene, function (newMeshes) 
         { 
             g_ship = newMeshes[0]; 
             g_ship.position = new BABYLON.Vector3(0, 0, 0);
@@ -65,7 +65,7 @@ window.onload = function(){
             g_ship.particleSystem.direction1 = new BABYLON.Vector3(-333, 0, -333); // (width, depth, height)
             g_ship.particleSystem.direction2 = new BABYLON.Vector3(333, 333, 333);
             g_camera.target = g_ship.mesh.position;
-            g_camera.setPosition(new BABYLON.Vector3(0, 0, -50));
+            g_camera.setPosition(new BABYLON.Vector3(0, 0, -20));
             g_shipInited = true;
         });
         
@@ -303,7 +303,7 @@ function mouseDownEvent()
     var vY = (headPosition.y - yShip) * 7;
     var vZ = (headPosition.z - zShip) * 7;
     
-    lazer.position = new BABYLON.Vector3(xShip + vX * 1.5, yShip + vY * 1.5, zShip + vZ * 1.5);
+    lazer.position = new BABYLON.Vector3(xShip + vX * .01, yShip + vY * .01, zShip + vZ * .01);
     lazer.rotation.x = g_ship.mesh.rotation.x;
     lazer.rotation.y = g_ship.mesh.rotation.y;
     lazer.rotation.z = g_ship.mesh.rotation.z;
