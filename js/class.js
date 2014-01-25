@@ -31,6 +31,7 @@ Ship = function(mesh)
 Laser = function(vX, vY, vZ, mesh)
 {
     this.mesh = mesh;
+    this.particleSystem = null;
     this.vX = vX;
     this.vY = vY;
     this.vZ = vZ;
