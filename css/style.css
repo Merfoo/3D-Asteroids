@@ -37,3 +37,8 @@ html,body,#canvas
     display: none;
     z-index : -100;
 }
+
+* 
+{
+    cursor: none;
+}

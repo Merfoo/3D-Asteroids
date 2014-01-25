@@ -54,15 +54,17 @@ window.onload = function(){
         { 
             g_ship = newMeshes[0]; 
             g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0);
-            g_ship.scaling.x = .2; 
-            g_ship.scaling.y = .2; 
-            g_ship.scaling.z = .2; 
-            g_particleSystem = makeParticle(g_ship);
+            g_ship.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
             g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); 
             g_ship.head = BABYLON.Mesh.CreateBox("head", 3.0, g_scene);
             g_ship.head.parent = g_ship.mesh;
-            g_ship.head.position.y = -1;
+            g_ship.head.position = new BABYLON.Vector3(0, -5, 0);
             g_ship.head.isVisible = false;
+            g_particleSystem = makeParticle(g_ship.head);
+            particleSystem.minEmitBox = new BABYLON.Vector3(-4, 33, -8);    // (width, depth, height)
+            particleSystem.maxEmitBox = new BABYLON.Vector3(4, 50, 0);     
+            particleSystem.direction1 = new BABYLON.Vector3(-333, 0, -333); // (width, depth, height)
+            particleSystem.direction2 = new BABYLON.Vector3(333, 333, 333);
             g_camera.setPosition(new BABYLON.Vector3(0, 0, -50));
             g_shipInited = true;
         });
@@ -183,10 +185,10 @@ function gameLoop()
 function updateShip()
 {
     var headPosition = g_ship.head.getAbsolutePosition();
-    g_ship.vX = (headPosition.x - g_ship.mesh.position.x) * 10;
-    g_ship.vY = (headPosition.y - g_ship.mesh.position.y) * 10;
-    g_ship.vZ = (headPosition.z - g_ship.mesh.position.z) * 10;
-        
+    g_ship.vX = (headPosition.x - g_ship.mesh.position.x) * 3;
+    g_ship.vY = (headPosition.y - g_ship.mesh.position.y) * 3;
+    g_ship.vZ = (headPosition.z - g_ship.mesh.position.z) * 3;
+    
     if(g_shipInited && (g_ship.bMoveForward || g_ship.bMoveBackward))
     {
         g_particleSystem.start();
@@ -226,11 +228,10 @@ function updateShip()
         if(g_mouse.angX < -g_angOffSet.minAng && diffAngX <= 0)
             g_angOffSet.angX -= g_angOffSet.angInc;
 
-        console.log(g_angOffSet);
         g_ship.mesh.rotation.x = toRadian(g_mouse.angY - 90 + g_angOffSet.angY);
         g_ship.mesh.rotation.y = toRadian(g_mouse.angX + g_angOffSet.angX);
-        g_camera.beta = -1 * toRadian((g_mouse.angY * 0.69) - 80 + g_angOffSet.angY);
-        g_camera.alpha = -1 * toRadian((g_mouse.angX * 0.69) + 90 + g_angOffSet.angX); 
+        g_camera.beta = -1 * toRadian((g_mouse.angY * .6) - 80 + g_angOffSet.angY);
+        g_camera.alpha = -1 * toRadian((g_mouse.angX * .6) + 90 + g_angOffSet.angX); 
     }   
 }
 
@@ -296,9 +297,9 @@ function mouseDownEvent(e)
     var yShip = g_ship.mesh.position.y;
     var zShip = g_ship.mesh.position.z;
     var headPosition = g_ship.head.getAbsolutePosition();
-    var vX = (headPosition.x - xShip) * 20;
-    var vY = (headPosition.y - yShip) * 20;
-    var vZ = (headPosition.z - zShip) * 20;
+    var vX = (headPosition.x - xShip) * 7;
+    var vY = (headPosition.y - yShip) * 7;
+    var vZ = (headPosition.z - zShip) * 7;
     
     lazer.position = new BABYLON.Vector3(xShip + vX * 1.5, yShip + vY * 1.5, zShip + vZ * 1.5);
     lazer.rotation.x = g_ship.mesh.rotation.x;
@@ -398,22 +399,22 @@ function makeParticle(mesh)
 {
         particleSystem = new BABYLON.ParticleSystem("particles", 2000, g_scene);
         particleSystem.particleTexture = new BABYLON.Texture("images/Flare.png", g_scene);
-        particleSystem.emitter = mesh;                              // Where the particles come from
-        particleSystem.minEmitBox = new BABYLON.Vector3(-4, 0, -10);    // Starting from
-        particleSystem.maxEmitBox = new BABYLON.Vector3(4, 0, 0);     // to...
+        particleSystem.emitter = mesh;                              
+        particleSystem.minEmitBox = new BABYLON.Vector3(-4, -4, -4);    // (width, depth, height)
+        particleSystem.maxEmitBox = new BABYLON.Vector3(4, 4, 4);     
         particleSystem.color1 = new BABYLON.Color4(0.7, 0.8, 1.0, 1.0);
         particleSystem.color2 = new BABYLON.Color4(0.2, 0.5, 1.0, 1.0);
         particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
         particleSystem.minSize = 0.2;
-        particleSystem.maxSize = 0.5;
-        particleSystem.minLifeTime = 0.3;
-        particleSystem.maxLifeTime = 0.5;
-        particleSystem.emitRate = 30000;
+        particleSystem.maxSize = 2.5;
+        particleSystem.minLifeTime = 0.01;
+        particleSystem.maxLifeTime = 0.03;
+        particleSystem.emitRate = 5000;
         particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
-        particleSystem.direction1 = new BABYLON.Vector3(-70, -40, -40);
-        particleSystem.direction2 = new BABYLON.Vector3(70, 40, 40);
+        particleSystem.direction1 = new BABYLON.Vector3(-200, -200, -200); // (width, depth, height)
+        particleSystem.direction2 = new BABYLON.Vector3(200, 200, 200);
         particleSystem.minAngularSpeed = 0;
-        particleSystem.maxAngularSpeed = Math.PI/4;
+        particleSystem.maxAngularSpeed = Math.PI * 2;
         particleSystem.targetStopDuration = 0;
         particleSystem.minEmitPower = 1;
         particleSystem.maxEmitPower = 3;
