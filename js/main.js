@@ -4,7 +4,7 @@ var g_constAsteroids = { maxX: 225, maxY: 225, maxZ: 225};
 var g_asteroids = new Array();
 var g_mainLazer;
 var g_mouse = { x: 0, y: 0, lastAngX: 0, lastAngY: 0, angX: 0, angY: 0 }; 
-var g_angOffSet = { angX: 0, angY: 0, minAng: 70, angInc: 2 };
+var g_angOffSet = { angX: 0, angY: 0, minAng: 45 };
 var g_lazers = new Array();
 var g_ship;
 var g_camera;
@@ -42,6 +42,7 @@ window.onload = function(){
 
         //Adding of the Arc Rotate Camera
         g_camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), g_scene);
+   
         // Add fog
         g_scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
         g_scene.fogDensity = 0.005;
@@ -215,19 +216,21 @@ function updateShip()
     {
         var diffAngX = (g_mouse.angX - g_mouse.lastAngX);
         var diffAngY = (g_mouse.angY - g_mouse.lastAngY);
+        var incX = Math.abs(Math.abs(g_mouse.angX) - Math.abs(g_angOffSet.minAng)) * 0.033;
+        var incY = Math.abs(Math.abs(g_mouse.angY) - Math.abs(g_angOffSet.minAng)) * 0.01;
         
         if(g_mouse.angY > g_angOffSet.minAng && diffAngY >= 0)
-            g_angOffSet.angY += g_angOffSet.angInc;
+            g_angOffSet.angY += incY;
 
         if(g_mouse.angY < -g_angOffSet.minAng && diffAngY <= 0)
-            g_angOffSet.angY -= g_angOffSet.angInc;
+            g_angOffSet.angY -= incY;
 
         if(g_mouse.angX > g_angOffSet.minAng && diffAngX >= 0)
-            g_angOffSet.angX += g_angOffSet.angInc;
+            g_angOffSet.angX += incX;
 
         if(g_mouse.angX < -g_angOffSet.minAng && diffAngX <= 0)
-            g_angOffSet.angX -= g_angOffSet.angInc;
-
+            g_angOffSet.angX -= incX;
+        
         g_ship.mesh.rotation.x = toRadian(g_mouse.angY - 90 + g_angOffSet.angY);
         g_ship.mesh.rotation.y = toRadian(g_mouse.angX + g_angOffSet.angX);
         g_camera.beta = -1 * toRadian((g_mouse.angY * .6) - 80 + g_angOffSet.angY);
@@ -290,7 +293,7 @@ function keyboardEvent(event)
 }
 
 // Handles mousedown events
-function mouseDownEvent(e)
+function mouseDownEvent()
 {
     var lazer = g_mainLazer.clone("0");
     var xShip = g_ship.mesh.position.x;
