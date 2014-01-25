@@ -58,10 +58,6 @@ window.onload = function(){
             g_ship.position = new BABYLON.Vector3(0, 0, 0);
             g_camera.target = g_ship.position;
             g_camera.setPosition(new BABYLON.Vector3(50, 0, 0));
-            g_ship.rotation.y = 0;
-            g_ship.scaling.x = 1; 
-            g_ship.scaling.y = 1; 
-            g_ship.scaling.z = 1; 
             g_ship = new Ship(g_ship); 
             g_ship.head = BABYLON.Mesh.CreateBox("head", 3.0, g_scene);
             g_ship.head.parent = g_ship.mesh;
@@ -97,7 +93,7 @@ window.onload = function(){
             g_large.scaling.x = .2; 
             g_large.scaling.y = .2; 
             g_large.scaling.z = .2; 
-            initAsteroids(333);
+            initAsteroids(150);
         });
         
         g_scene.executeWhenReady(function(){
@@ -175,11 +171,11 @@ function gameLoop()
             
             if(g_ship.mesh.intersectsPoint(g_asteroids[i].mesh.position)) 
             {
-                g_ship.health -= 10;
+                g_ship.lives--;
                 
-                if(g_ship.health < 0)
+                if(g_ship.lives <= 0)
                 {
-                    g_ship.health = 0;
+                    g_ship.lives = 0;
                     g_timeEnd = new Date().getTime() / 1000;
                     alert("GAME OVER: Took you " + Math.floor(g_timeEnd - g_timeInit) + " seconds to die.");
                     g_gameEnded = true;
@@ -188,7 +184,7 @@ function gameLoop()
                 }
             }
             
-            document.getElementById("health").innerHTML="Health: " + g_ship.health + ", Asteroids Killed: " + g_ship.killedAsteroids;
+            document.getElementById("health").innerHTML="Lives: " + g_ship.lives + ", Asteroids Killed: " + g_ship.killedAsteroids;
                 
         }
     }
@@ -339,22 +335,9 @@ function makeLazer()
 }
 
 // Handles mousedown events
-function mouseDownEvent(e)
+function mouseDownEvent()
 {
     makeLazer();
-//    var lazer = BABYLON.Mesh.CreateSphere("lazer", 25, 3, g_scene);
-//    lazer.material = new BABYLON.StandardMaterial("texture1", g_scene);
-//    lazer.material.diffuseTexture = new BABYLON.Texture("images/Flare.png", g_scene);
-//    var xShip = g_ship.mesh.position.x;
-//    var yShip = g_ship.mesh.position.y;
-//    var zShip = g_ship.mesh.position.z;
-//    var headPosition = g_ship.head.getAbsolutePosition();
-//    var vX = (headPosition.x - xShip) * 7;
-//    var vY = (headPosition.y - yShip) * 7;
-//    var vZ = (headPosition.z - zShip) * 7;
-//    
-//    lazer.position = new BABYLON.Vector3(xShip + vX * 1.5, yShip + vY * 1.5, zShip + vZ * 1.5);
-//    g_lazers.push(new Laser(vX, vY, vZ, lazer));
 }
 
 function mouseMoveEvent(e)
@@ -453,12 +436,12 @@ function makeShipParticle(mesh)
         particleSystem.maxEmitBox = new BABYLON.Vector3(16, 2.0, .25);     // to...
         particleSystem.color1 = new BABYLON.Color4(0.7, 0.8, 1.0, 1.0);
         particleSystem.color2 = new BABYLON.Color4(0.2, 0.5, 1.0, 1.0);
-        particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
-        particleSystem.minSize = 0.2;
-        particleSystem.maxSize = 2.5;
+        particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.0, 0.0);
+        particleSystem.minSize = 1;
+        particleSystem.maxSize = 3.5;
         particleSystem.minLifeTime = 0.01;
         particleSystem.maxLifeTime = 0.03;
-        particleSystem.emitRate = 5000;
+        particleSystem.emitRate = 1000;
         particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
         particleSystem.direction1 = new BABYLON.Vector3(0, 10, -0); // (width, depth, height)
         particleSystem.direction2 = new BABYLON.Vector3(0, -10, 0);
@@ -480,14 +463,14 @@ function makeLazerParticle(mesh)
     particleSystem.emitter = mesh;    
     particleSystem.minEmitBox = new BABYLON.Vector3(-10, -.1, -.1);    // Starting from
     particleSystem.maxEmitBox = new BABYLON.Vector3(0, .1, .1);     // to...
-    particleSystem.color1 = new BABYLON.Color3(1.0, 0, 0);
-    particleSystem.color2 = new BABYLON.Color3(1.0, 0, 0);
+    particleSystem.color1 = new BABYLON.Color3(.541, .0274, .0274);
+    particleSystem.color2 = new BABYLON.Color3(.541, .0274, .0274);
     particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.0, 0.0);
     particleSystem.minSize = 1.5;
     particleSystem.maxSize = 1.5;
     particleSystem.minLifeTime = 0.033;
     particleSystem.maxLifeTime = 0.033;
-    particleSystem.emitRate = 2000;
+    particleSystem.emitRate = 1000;
     particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
     particleSystem.direction1 = new BABYLON.Vector3(-2, -2, -2); // (width, depth, height)
     particleSystem.direction2 = new BABYLON.Vector3(2, 2, 2);
