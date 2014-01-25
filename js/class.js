@@ -69,7 +69,7 @@ Ship = function( vX, vY, vZ, rX, rY, rZ, mesh )
     this.killedAsteroids = 0;
     this.shield = 100;
     this.ammo = 100;
-    this.lives = 3;
+    this.lives = 10;
     
     this.head;
 }

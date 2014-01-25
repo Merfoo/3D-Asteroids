@@ -161,9 +161,9 @@ function gameLoop()
             
             if(g_ship.mesh.intersectsPoint(g_asteroids[i].mesh.position)) 
             {
-                g_ship.health -= 10;
+                g_ship.health--;
                 
-                if(g_ship.health < 0)
+                if(g_ship.lives <= 0)
                 {
                     g_ship.health = 0;
                     g_timeEnd = new Date().getTime() / 1000;
@@ -174,7 +174,7 @@ function gameLoop()
                 }
             }
             
-            document.getElementById("health").innerHTML="Health: " + g_ship.health + ", Asteroids Killed: " + g_ship.killedAsteroids;
+            document.getElementById("health").innerHTML="Lives: " + g_ship.lives + ", Asteroids Killed: " + g_ship.killedAsteroids;
                 
         }
     }
