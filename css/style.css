@@ -4,7 +4,7 @@ html,body,#canvas
     height:100%;
     padding:0;
     margin:0;
-    background-image: url("../models/scene/menu.bmp");
+    background-image: url("../images/Loading3.jpg");
     background-size: 100% 100%;
     overflow: hidden;
 }
@@ -36,4 +36,9 @@ html,body,#canvas
 {
     display: none;
     z-index : -100;
+}
+
+* 
+{
+    cursor: none;
 }
