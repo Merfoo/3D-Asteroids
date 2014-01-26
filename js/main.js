@@ -56,7 +56,7 @@ window.onload = function(){
             g_camera.target = g_ship.position;
             g_camera.setPosition(new BABYLON.Vector3(50, 0, 0));
             g_ship = new Ship(g_ship); 
-            g_ship.head = BABYLON.Mesh.CreateBox("head", 3.0, g_scene);
+            g_ship.head = BABYLON.Mesh.CreateBox("head", 1.0, g_scene);
             g_ship.head.parent = g_ship.mesh;
             g_ship.head.position.x = -1;
             g_ship.head.isVisible = false;
@@ -79,7 +79,7 @@ window.onload = function(){
             g_ship.particleSystemLeft.maxEmitBox = new BABYLON.Vector3(16, .25, -2.25);     // to...
             g_ship.particleSystemRight.minEmitBox = new BABYLON.Vector3(11, -.25, 1.45);    // Starting from
             g_ship.particleSystemRight.maxEmitBox = new BABYLON.Vector3(16, .25, 2.25);     // to...
-            
+    
             g_shipInited = true;
         });
         
@@ -166,13 +166,12 @@ function gameLoop()
                 }
             }
             
-            if(g_ship.mesh.intersectsPoint(g_asteroids[i].mesh.position)) 
+            if(g_ship.head.intersectsMesh(g_asteroids[i].mesh, true)) 
             {
                 g_ship.lives--;
                 
                 if(g_ship.lives <= 0)
                 {
-                    g_ship.lives = 0;
                     g_timeEnd = new Date().getTime() / 1000;
                     alert("GAME OVER: Took you " + Math.floor(g_timeEnd - g_timeInit) + " seconds to die.");
                     g_gameEnded = true;
@@ -181,7 +180,7 @@ function gameLoop()
                 }
             }
             
-            document.getElementById("health").innerHTML="Lives: " + g_ship.lives + ", Asteroids Killed: " + g_ship.killedAsteroids;
+            document.getElementById("health").innerHTML="Health: " + g_ship.lives + ", Asteroids Killed: " + g_ship.killedAsteroids;
                 
         }
     }

@@ -29,7 +29,7 @@ Ship = function(mesh)
     this.bMoveBackward = false;
     this.bIsShooting = false;
     this.killedAsteroids = 0;
-    this.lives = 10;
+    this.lives = 100;
 };
 
 Laser = function(vX, vY, vZ, mesh)
