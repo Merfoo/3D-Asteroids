@@ -1,13 +1,13 @@
 var g_scene;
 var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, m: 77, left: 37, up: 38, right: 39, down: 40 };
 var g_asteroids = new Array();
-var g_mainLazer;
 var g_mouse = { x: 0, y: 0, lastAngX: 0, lastAngY: 0, angX: 0, angY: 0 }; 
 var g_angOffSet = { angX: 0, angY: 0, minAng: 70, angInc: 2 };
 var g_lazers = new Array();
 var g_ship;
 var g_camera;
-var g_large;
+var g_mainLazer;
+var g_mainAsteroid;
 var g_maxSize = 300;
 var g_timeInit = 0;
 var g_timeEnd = 0;
@@ -47,8 +47,12 @@ window.onload = function(){
         // Attach the camera to the scene
         //g_scene.activeCamera.attachControl(canvas);
         
+        g_mainLazer = BABYLON.Mesh.CreateCylinder("cylinder", 10, 0.6, 0.6, 6, g_scene, false);
+        g_mainLazer.material = new BABYLON.StandardMaterial("texture", g_scene);
+        g_mainLazer.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+        g_mainLazer.position = new BABYLON.Vector3(100000, 0, 0);
+    
         // Load models
-        
         BABYLON.SceneLoader.ImportMesh("", "models/exampleScene/", "Viper.babylon", g_scene, function (newMeshes) 
         { 
             g_ship = newMeshes[0]; 
@@ -82,11 +86,11 @@ window.onload = function(){
             
             BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
             { 
-                g_large = newMeshes[0];
-                g_large.position = new BABYLON.Vector3(100000, 0, 0);
-                g_large.scaling.x = .2; 
-                g_large.scaling.y = .2; 
-                g_large.scaling.z = .2; 
+                g_mainAsteroid = newMeshes[0];
+                g_mainAsteroid.position = new BABYLON.Vector3(100000, 0, 0);
+                g_mainAsteroid.scaling.x = .2; 
+                g_mainAsteroid.scaling.y = .2; 
+                g_mainAsteroid.scaling.z = .2; 
                 initAsteroids(300);
                 
                 // Once the scene is loaded, just register a render loop to render it
@@ -322,9 +326,7 @@ function makeLazer()
 
 function makeShipLazer(x, y, z)
 {
-    var lazer = BABYLON.Mesh.CreateCylinder("cylinder", 10, 0.6, 0.6, 6, g_scene, false);
-    lazer.material = new BABYLON.StandardMaterial("texture", g_scene);
-    lazer.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+    var lazer = g_mainLazer.clone();
     lazer.position = new BABYLON.Vector3(x, y, z);
     lazer.rotation.x = g_ship.mesh.rotation.x;
     lazer.rotation.y = g_ship.mesh.rotation.y;
@@ -353,7 +355,7 @@ function initAsteroids(amount)
 {
     for(var index = 0; index < amount; index++)
     {
-        var newMesh = g_large.clone();
+        var newMesh = g_mainAsteroid.clone();
 
         newMesh.position = new BABYLON.Vector3(0, 0, 0); 
         newMesh.scaling.x = (Math.random() * 0.2) + 0.15;
