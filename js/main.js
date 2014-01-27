@@ -94,6 +94,12 @@ window.onload = function(){
                 engine.runRenderLoop(function () {
                     gameLoop();
                     g_scene.render();
+                    
+                    if(!g_gameInited)
+                    {
+                        document.getElementById("loading").style.zIndex = -100;
+                        g_gameInited = true;
+                    }
                 });
 
                 // Resize
@@ -145,13 +151,7 @@ function updateAsteroids()
 function gameLoop()
 {
     if(!g_gameEnded)
-    {
-        if(!g_gameInited)
-        {
-            document.getElementById("loading").style.zIndex = -100;
-            g_gameInited = true;
-        }
-        
+    {        
         updateShip();
         updateAsteroids();
         updateLazers();
