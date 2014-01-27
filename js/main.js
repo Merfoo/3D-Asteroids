@@ -94,14 +94,17 @@ window.onload = function(){
                 engine.runRenderLoop(function () {
                     gameLoop();
                     g_scene.render();
-                    
+                });
+                
+                g_scene.executeWhenReady(function()
+                {
                     if(!g_gameInited)
                     {
                         document.getElementById("loading").style.zIndex = -100;
                         g_gameInited = true;
                     }
                 });
-
+                
                 // Resize
                 window.addEventListener("resize", function () {
                     engine.resize();
