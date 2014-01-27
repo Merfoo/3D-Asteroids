@@ -1,6 +1,5 @@
 var g_scene;
 var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, m: 77, left: 37, up: 38, right: 39, down: 40 };
-var g_constAsteroids = { maxX: 225, maxY: 225, maxZ: 225};
 var g_asteroids = new Array();
 var g_mainLazer;
 var g_mouse = { x: 0, y: 0, lastAngX: 0, lastAngY: 0, angX: 0, angY: 0 }; 
@@ -88,7 +87,7 @@ window.onload = function(){
                 g_large.scaling.x = .2; 
                 g_large.scaling.y = .2; 
                 g_large.scaling.z = .2; 
-                initAsteroids(150);
+                initAsteroids(300);
                 
                 // Once the scene is loaded, just register a render loop to render it
                 engine.runRenderLoop(function () {
@@ -354,17 +353,9 @@ function initAsteroids(amount)
 {
     for(var index = 0; index < amount; index++)
     {
-        var x = getRandomNumber(-g_constAsteroids.maxX, g_constAsteroids.maxX);
-        var y = getRandomNumber(-g_constAsteroids.maxY, g_constAsteroids.maxY);
-        var z = getRandomNumber(-g_constAsteroids.maxZ, g_constAsteroids.maxZ);
-
-        var vX = (getRandomNumber(-10, 10) - 1) / 18.0;
-        var vY = (getRandomNumber(-10, 10) - 1) / 18.0;
-        var vZ = (getRandomNumber(-10, 10) - 1) / 18.0;
-        
         var newMesh = g_large.clone();
 
-        newMesh.position = new BABYLON.Vector3(x, y, z); 
+        newMesh.position = new BABYLON.Vector3(0, 0, 0); 
         newMesh.scaling.x = (Math.random() * 0.2) + 0.15;
         newMesh.scaling.y = (Math.random() * 0.2) + 0.15; 
         newMesh.scaling.z = (Math.random() * 0.2) + 0.15;
@@ -372,18 +363,55 @@ function initAsteroids(amount)
         var rX = getRandomNumber(-10, 10) / 100;
         var rZ = getRandomNumber(-10, 10) / 100;
         
-        g_asteroids.push(new Asteroid(vX, vY, vZ, rX, 0, rZ, newMesh));
+        g_asteroids.push(new Asteroid(0, 0, 0, rX, 0, rZ, newMesh));
+        resetAsteroid(index);
     }
 }
 
 function resetAsteroid(index)
 {
-    var x = getRandomNumber(-g_constAsteroids.maxX, g_constAsteroids.maxX) + g_ship.mesh.position.x;
-    var y = getRandomNumber(-g_constAsteroids.maxY, g_constAsteroids.maxY) + g_ship.mesh.position.y;
-    var z = getRandomNumber(-g_constAsteroids.maxZ, g_constAsteroids.maxZ) + g_ship.mesh.position.z;
+    var mode = getRandomNumber(1, 6);
+    var x = getRandomNumber(-g_maxSize + 1, g_maxSize - 1) + g_ship.mesh.position.x;
+    var y = getRandomNumber(-g_maxSize + 1, g_maxSize - 1) + g_ship.mesh.position.y;
+    var z = getRandomNumber(-g_maxSize + 1, g_maxSize - 1) + g_ship.mesh.position.z;
+
+    switch(mode)
+    {
+        case 1: // Start Top
+            y = g_maxSize - 1 + g_ship.mesh.position.y;
+            break;
+
+        case 2: // Start Bottom
+            y = -g_maxSize + 1 + g_ship.mesh.position.y;
+            break;
+
+        case 3: // Start Forward
+            x = -g_maxSize + 1 + g_ship.mesh.position.x;
+            break;
+
+        case 4: // Start Backward
+            x = g_maxSize - 1 + g_ship.mesh.position.x;
+            break;
+
+        case 5: // Start Left
+            z = -g_maxSize + 1 + g_ship.mesh.position.z; 
+            break
+
+        case 6: // Start Right
+            z = g_maxSize - 1 + g_ship.mesh.position.z;
+            break;
+    }
+
+    var vX = (g_ship.mesh.position.x - x) / getRandomNumber(100, 200); 
+    var vY = (g_ship.mesh.position.y - y) / getRandomNumber(100, 200); 
+    var vZ = (g_ship.mesh.position.z - z) / getRandomNumber(100, 200);
+    
     g_asteroids[index].mesh.position.x = x;
     g_asteroids[index].mesh.position.y = y;
     g_asteroids[index].mesh.position.z = z;
+    g_asteroids[index].vX = vX;
+    g_asteroids[index].vY = vY;
+    g_asteroids[index].vZ = vZ;
 }
 
 // Returns random number between iMin and iMax, include iMin and iMax
