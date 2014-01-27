@@ -1,5 +1,5 @@
 var g_scene;
-var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, m: 77};
+var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, m: 77, left: 37, up: 38, right: 39, down: 40 };
 var g_constAsteroids = { maxX: 225, maxY: 225, maxZ: 225};
 var g_asteroids = new Array();
 var g_mainLazer;
@@ -13,8 +13,6 @@ var g_maxSize = 300;
 var g_timeInit = 0;
 var g_timeEnd = 0;
 var g_gameEnded = false;
-var g_fountain;
-var g_particleSystem;
 var g_shipInited = false;
 var g_music = true;
 
@@ -42,28 +40,29 @@ window.onload = function(){
 
         //Adding of the Arc Rotate Camera
         g_camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), g_scene);
+        
         // Add fog
         g_scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
         g_scene.fogDensity = 0.005;
-       
+        
         // Attach the camera to the scene
         //g_scene.activeCamera.attachControl(canvas);
-    
+        
         // Load models
         BABYLON.SceneLoader.ImportMesh("ship", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
         { 
             g_ship = newMeshes[0]; 
-            g_camera.target = g_ship.position = new BABYLON.Vector3(0, 0, 0);
-            g_ship.scaling.x = .2; 
-            g_ship.scaling.y = .2; 
-            g_ship.scaling.z = .2; 
-            g_particleSystem = makeParticle(g_ship);
-            g_ship = new Ship(1, 1, 1, 1, 1, 1, g_ship); 
-            g_ship.head = BABYLON.Mesh.CreateBox("head", 3.0, g_scene);
+            g_ship.position = new BABYLON.Vector3(0, 0, 0);
+            g_ship.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
+            g_camera.target = g_ship.position;
+            g_camera.setPosition(new BABYLON.Vector3(0, 0, -40));
+            g_ship = new Ship(g_ship); 
+            g_ship.head = BABYLON.Mesh.CreateBox("head", 1.0, g_scene);
             g_ship.head.parent = g_ship.mesh;
             g_ship.head.position.y = -1;
             g_ship.head.isVisible = false;
-            g_camera.setPosition(new BABYLON.Vector3(0, 0, -50));
+            g_ship.particleSystem = makeShipParticle(g_ship.mesh); 
+    
             g_shipInited = true;
         });
         
@@ -74,16 +73,7 @@ window.onload = function(){
             g_large.scaling.x = .2; 
             g_large.scaling.y = .2; 
             g_large.scaling.z = .2; 
-            initAsteroids(333);
-        });
-        
-        BABYLON.SceneLoader.ImportMesh("laser", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
-        { 
-            g_mainLazer = newMeshes[0];
-            g_mainLazer.position = new BABYLON.Vector3(100000, 0, 0);
-            g_mainLazer.scaling.x = .5; 
-            g_mainLazer.scaling.y = .5; 
-            g_mainLazer.scaling.z = .5; 
+            initAsteroids(150);
         });
         
         g_scene.executeWhenReady(function(){
@@ -159,13 +149,12 @@ function gameLoop()
                 }
             }
             
-            if(g_ship.mesh.intersectsPoint(g_asteroids[i].mesh.position)) 
+            if(g_ship.head.intersectsMesh(g_asteroids[i].mesh, true)) 
             {
-                g_ship.health -= 10;
+                g_ship.lives--;
                 
-                if(g_ship.health < 0)
+                if(g_ship.lives <= 0)
                 {
-                    g_ship.health = 0;
                     g_timeEnd = new Date().getTime() / 1000;
                     alert("GAME OVER: Took you " + Math.floor(g_timeEnd - g_timeInit) + " seconds to die.");
                     g_gameEnded = true;
@@ -174,7 +163,7 @@ function gameLoop()
                 }
             }
             
-            document.getElementById("health").innerHTML="Health: " + g_ship.health + ", Asteroids Killed: " + g_ship.killedAsteroids;
+            document.getElementById("health").innerHTML="Health: " + g_ship.lives + ", Asteroids Killed: " + g_ship.killedAsteroids;
                 
         }
     }
@@ -183,14 +172,14 @@ function gameLoop()
 function updateShip()
 {
     var headPosition = g_ship.head.getAbsolutePosition();
-    g_ship.vX = (headPosition.x - g_ship.mesh.position.x) * 10;
-    g_ship.vY = (headPosition.y - g_ship.mesh.position.y) * 10;
-    g_ship.vZ = (headPosition.z - g_ship.mesh.position.z) * 10;
+    g_ship.vX = (headPosition.x - g_ship.mesh.position.x) * 18;
+    g_ship.vY = (headPosition.y - g_ship.mesh.position.y) * 18;
+    g_ship.vZ = (headPosition.z - g_ship.mesh.position.z) * 18;
         
     if(g_shipInited && (g_ship.bMoveForward || g_ship.bMoveBackward))
     {
-        g_particleSystem.start();
-
+        g_ship.particleSystem.start();
+        
         if(g_ship.bMoveForward)
         {       
             g_ship.mesh.position.x += g_ship.vX;
@@ -207,7 +196,7 @@ function updateShip()
     }
     
     else
-        g_particleSystem.stop();
+        g_ship.particleSystem.stop();
 
     if(Math.abs(g_mouse.angY + g_angOffSet.angY) <= 111)
     {
@@ -226,11 +215,10 @@ function updateShip()
         if(g_mouse.angX < -g_angOffSet.minAng && diffAngX <= 0)
             g_angOffSet.angX -= g_angOffSet.angInc;
 
-        console.log(g_angOffSet);
         g_ship.mesh.rotation.x = toRadian(g_mouse.angY - 90 + g_angOffSet.angY);
         g_ship.mesh.rotation.y = toRadian(g_mouse.angX + g_angOffSet.angX);
-        g_camera.beta = -1 * toRadian((g_mouse.angY * 0.69) - 80 + g_angOffSet.angY);
-        g_camera.alpha = -1 * toRadian((g_mouse.angX * 0.69) + 90 + g_angOffSet.angX); 
+        g_camera.beta = -1 * toRadian((g_mouse.angY * .7) - 80 + g_angOffSet.angY);
+        g_camera.alpha = -1 * toRadian((g_mouse.angX * .7) + 90 + g_angOffSet.angX);
     }   
 }
 
@@ -238,7 +226,7 @@ function updateShip()
 function keyboardEvent(event) 
 {    
     var keyCode = event.keyCode;
-    
+  
     if (event.type === "keydown")
     {        
         switch(keyCode)
@@ -257,7 +245,7 @@ function keyboardEvent(event)
     }
     
     if (event.type === "keyup")
-    {        
+    {       
         switch(keyCode)
         {
             case g_keyboardIds.w:
@@ -288,36 +276,40 @@ function keyboardEvent(event)
     }
 }
 
-// Handles mousedown events
-function mouseDownEvent(e)
+function makeLazer()
 {
-    var lazer = g_mainLazer.clone("0");
-    var xShip = g_ship.mesh.position.x;
-    var yShip = g_ship.mesh.position.y;
-    var zShip = g_ship.mesh.position.z;
     var headPosition = g_ship.head.getAbsolutePosition();
-    var vX = (headPosition.x - xShip) * 20;
-    var vY = (headPosition.y - yShip) * 20;
-    var vZ = (headPosition.z - zShip) * 20;
+    var vX = (headPosition.x - g_ship.mesh.position.x) * 30;
+    var vY = (headPosition.y - g_ship.mesh.position.y) * 30;
+    var vZ = (headPosition.z - g_ship.mesh.position.z) * 30;
+    var pos = g_ship.head.getAbsolutePosition();
+    var lazer = BABYLON.Mesh.CreateCylinder("cylinder", 10, 0.6, 0.6, 6, g_scene, false);
     
-    lazer.position = new BABYLON.Vector3(xShip + vX * 1.5, yShip + vY * 1.5, zShip + vZ * 1.5);
+    lazer.material = new BABYLON.StandardMaterial("texture", g_scene);
+    lazer.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+    lazer.position = new BABYLON.Vector3(pos.x + vX * 1.5, pos.y + vY * 1.5, pos.z + vZ * 1.5);
     lazer.rotation.x = g_ship.mesh.rotation.x;
     lazer.rotation.y = g_ship.mesh.rotation.y;
     lazer.rotation.z = g_ship.mesh.rotation.z;
+    
     g_lazers.push(new Laser(vX, vY, vZ, lazer));
+}
+
+// Handles mousedown events
+function mouseDownEvent()
+{
+    makeLazer();
 }
 
 function mouseMoveEvent(e)
 {
     var halfWidth = Math.floor(window.innerWidth / 2);
     var halfHeight = Math.floor(window.innerHeight / 2);
-    var constX = Math.abs(90 / halfWidth);
-    var constY = Math.abs(90 / halfHeight);
     
     g_mouse.lastAngX = g_mouse.angX;
     g_mouse.lastAngY = g_mouse.angY;
-    g_mouse.angX = ((e.clientX - halfWidth) * constX);
-    g_mouse.angY = ((e.clientY - halfHeight) * constY);
+    g_mouse.angX = 90 - toDegree(Math.acos((e.clientX - halfWidth) / halfWidth));
+    g_mouse.angY = 90 - toDegree(Math.acos((e.clientY - halfHeight) / halfHeight));
 }
 
 function initAsteroids(amount)
@@ -394,26 +386,26 @@ function outOfBounds(pos)
     return false;
 }
 
-function makeParticle(mesh)
+function makeShipParticle(mesh)
 {
-        particleSystem = new BABYLON.ParticleSystem("particles", 2000, g_scene);
+        var particleSystem = new BABYLON.ParticleSystem("particles", 1000, g_scene);
         particleSystem.particleTexture = new BABYLON.Texture("images/Flare.png", g_scene);
-        particleSystem.emitter = mesh;                              // Where the particles come from
-        particleSystem.minEmitBox = new BABYLON.Vector3(-4, 0, -10);    // Starting from
-        particleSystem.maxEmitBox = new BABYLON.Vector3(4, 0, 0);     // to...
+        particleSystem.emitter = mesh;    
+        particleSystem.minEmitBox = new BABYLON.Vector3(-4, 30, -8);    // Starting from
+        particleSystem.maxEmitBox = new BABYLON.Vector3(4, 50, 0);     // to...
         particleSystem.color1 = new BABYLON.Color4(0.7, 0.8, 1.0, 1.0);
         particleSystem.color2 = new BABYLON.Color4(0.2, 0.5, 1.0, 1.0);
-        particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
-        particleSystem.minSize = 0.2;
-        particleSystem.maxSize = 0.5;
-        particleSystem.minLifeTime = 0.3;
-        particleSystem.maxLifeTime = 0.5;
-        particleSystem.emitRate = 30000;
+        particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.0, 0.0);
+        particleSystem.minSize = 2;
+        particleSystem.maxSize = 3.5;
+        particleSystem.minLifeTime = 0.01;
+        particleSystem.maxLifeTime = 0.03;
+        particleSystem.emitRate = 500;
         particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
-        particleSystem.direction1 = new BABYLON.Vector3(-70, -40, -40);
-        particleSystem.direction2 = new BABYLON.Vector3(70, 40, 40);
+        particleSystem.direction1 = new BABYLON.Vector3(-333, 0, -333); // (width, depth, height)
+        particleSystem.direction2 = new BABYLON.Vector3(333, 333, 333);
         particleSystem.minAngularSpeed = 0;
-        particleSystem.maxAngularSpeed = Math.PI/4;
+        particleSystem.maxAngularSpeed = Math.PI * 2;
         particleSystem.targetStopDuration = 0;
         particleSystem.minEmitPower = 1;
         particleSystem.maxEmitPower = 3;
