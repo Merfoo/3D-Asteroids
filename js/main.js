@@ -14,6 +14,7 @@ var g_timeInit = 0;
 var g_timeEnd = 0;
 var g_gameEnded = false;
 var g_music = true;
+var g_gameInited = false;
 
 window.onload = function(){
     var canvas = document.getElementById("canvas");
@@ -89,11 +90,9 @@ window.onload = function(){
                 g_large.scaling.z = .2; 
                 initAsteroids(150);
                 
-                document.getElementById("loading").style.zIndex = -100;
-                
                 // Once the scene is loaded, just register a render loop to render it
                 engine.runRenderLoop(function () {
-                    g_scene.beforeRender = gameLoop();
+                    gameLoop();
                     g_scene.render();
                 });
 
@@ -147,6 +146,12 @@ function gameLoop()
 {
     if(!g_gameEnded)
     {
+        if(!g_gameInited)
+        {
+            document.getElementById("loading").style.zIndex = -100;
+            g_gameInited = true;
+        }
+        
         updateShip();
         updateAsteroids();
         updateLazers();
