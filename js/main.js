@@ -40,6 +40,7 @@ window.onload = function(){
 
         //Adding of the Arc Rotate Camera
         g_camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), g_scene);
+        
         // Add fog
         g_scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
         g_scene.fogDensity = 0.005;
@@ -240,8 +241,8 @@ function updateShip()
 
         g_ship.mesh.rotation.y = toRadian(g_mouse.angX + g_angOffSet.angX);
         g_ship.mesh.rotation.z = toRadian(g_mouse.angY + g_angOffSet.angY);
-        g_camera.beta = -1 * toRadian((g_mouse.angY * .69) - 80 + g_angOffSet.angY);
-        g_camera.alpha = -1 * toRadian((g_mouse.angX * .69) + g_angOffSet.angX); 
+        g_camera.beta = -1 * toRadian((g_mouse.angY * .7) - 80 + g_angOffSet.angY);
+        g_camera.alpha = -1 * toRadian((g_mouse.angX * .7) + g_angOffSet.angX); 
     }   
 }
 
@@ -310,24 +311,21 @@ function makeLazer()
     var vZ = (headPosition.z - zShip) * 7;
     var posLeft = g_ship.lazerHeadLeft.getAbsolutePosition();
     var posRight = g_ship.lazerHeadRight.getAbsolutePosition();
-    
-    var lazer = BABYLON.Mesh.CreateSphere("lazer", 1, 1, g_scene);
-    lazer.isVisible = false;
-    lazer.position = new BABYLON.Vector3(posLeft.x + vX * 1.5, posLeft.y + vY * 1.5, posLeft.z + vZ * 1.5);
+
+    g_lazers.push(new Laser(vX, vY, vZ, makeShipLazer(posLeft.x + vX * 1.5, posLeft.y + vY * 1.5, posLeft.z + vZ * 1.5)));
+    g_lazers.push(new Laser(vX, vY, vZ, makeShipLazer(posRight.x + vX * 1.5, posRight.y + vY * 1.5, posRight.z + vZ * 1.5)));
+}
+
+function makeShipLazer(x, y, z)
+{
+    var lazer = BABYLON.Mesh.CreateCylinder("cylinder", 16, 0.6, 0.6, 6, g_scene, false);
+    lazer.material = new BABYLON.StandardMaterial("texture", g_scene);
+    lazer.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+    lazer.position = new BABYLON.Vector3(x, y, z);
     lazer.rotation.x = g_ship.mesh.rotation.x;
     lazer.rotation.y = g_ship.mesh.rotation.y;
-    lazer.rotation.z = g_ship.mesh.rotation.z;
-    g_lazers.push(new Laser(vX, vY, vZ, lazer));
-    g_lazers.particleSystem = makeLazerParticle(g_lazers[g_lazers.length - 1].mesh);
-    
-    var lazer = BABYLON.Mesh.CreateSphere("lazer", 1, 1, g_scene);
-    lazer.isVisible = false;
-    lazer.position = new BABYLON.Vector3(posRight.x + vX * 1.5, posRight.y + vY * 1.5, posRight.z + vZ * 1.5);
-    lazer.rotation.x = g_ship.mesh.rotation.x;
-    lazer.rotation.y = g_ship.mesh.rotation.y;
-    lazer.rotation.z = g_ship.mesh.rotation.z;
-    g_lazers.push(new Laser(vX, vY, vZ, lazer));
-    g_lazers.particleSystem = makeLazerParticle(g_lazers[g_lazers.length - 1].mesh);
+    lazer.rotation.z = g_ship.mesh.rotation.z + toRadian(90);
+    return lazer;
 }
 
 // Handles mousedown events
@@ -340,13 +338,11 @@ function mouseMoveEvent(e)
 {
     var halfWidth = Math.floor(window.innerWidth / 2);
     var halfHeight = Math.floor(window.innerHeight / 2);
-    var constX = Math.abs(90 / halfWidth);
-    var constY = Math.abs(90 / halfHeight);
     
     g_mouse.lastAngX = g_mouse.angX;
     g_mouse.lastAngY = g_mouse.angY;
-    g_mouse.angX = ((e.clientX - halfWidth) * constX);
-    g_mouse.angY = ((e.clientY - halfHeight) * constY);
+    g_mouse.angX = 90 - toDegree(Math.acos((e.clientX - halfWidth) / halfWidth));
+    g_mouse.angY = 90 - toDegree(Math.acos((e.clientY - halfHeight) / halfHeight));
 }
 
 function initAsteroids(amount)
@@ -437,7 +433,7 @@ function makeShipParticle(mesh)
         particleSystem.maxSize = 3.5;
         particleSystem.minLifeTime = 0.01;
         particleSystem.maxLifeTime = 0.03;
-        particleSystem.emitRate = 500;
+        particleSystem.emitRate = 750;
         particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
         particleSystem.direction1 = new BABYLON.Vector3(0, 10, -0); // (width, depth, height)
         particleSystem.direction2 = new BABYLON.Vector3(0, -10, 0);
@@ -450,34 +446,4 @@ function makeShipParticle(mesh)
         particleSystem.disposeOnStop = false;
         
         return particleSystem;
-}
-
-function makeLazerParticle(mesh)
-{
-    var particleSystem = new BABYLON.ParticleSystem("particles", 1000, g_scene);
-    particleSystem.particleTexture = new BABYLON.Texture("images/Flare.png", g_scene);
-    particleSystem.emitter = mesh;    
-    particleSystem.minEmitBox = new BABYLON.Vector3(-10, -.1, -.1);    // Starting from
-    particleSystem.maxEmitBox = new BABYLON.Vector3(0, .1, .1);     // to...
-    particleSystem.color1 = new BABYLON.Color3(.541, .0274, .0274);
-    particleSystem.color2 = new BABYLON.Color3(.541, .0274, .0274);
-    particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.0, 0.0);
-    particleSystem.minSize = 1.5;
-    particleSystem.maxSize = 1.5;
-    particleSystem.minLifeTime = 0.033;
-    particleSystem.maxLifeTime = 0.033;
-    particleSystem.emitRate = 500;
-    particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
-    particleSystem.direction1 = new BABYLON.Vector3(-2, -2, -2); // (width, depth, height)
-    particleSystem.direction2 = new BABYLON.Vector3(2, 2, 2);
-    particleSystem.minAngularSpeed = 0;
-    particleSystem.maxAngularSpeed = Math.PI * 2;
-    particleSystem.targetStopDuration = 0;
-    particleSystem.minEmitPower = 1;
-    particleSystem.maxEmitPower = 3;
-    particleSystem.updateSpeed = 0.005;
-    particleSystem.disposeOnStop = false;
-    particleSystem.start();
-    
-    return particleSystem;
 }
