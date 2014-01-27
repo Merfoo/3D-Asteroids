@@ -77,6 +77,7 @@ window.onload = function(){
         });
         
         g_scene.executeWhenReady(function(){
+            document.getElementById("loading").style.zIndex = -100;
             // Once the scene is loaded, just register a render loop to render it
             engine.runRenderLoop(function () {
                 g_scene.beforeRender = gameLoop();
