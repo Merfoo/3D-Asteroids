@@ -13,7 +13,6 @@ var g_maxSize = 300;
 var g_timeInit = 0;
 var g_timeEnd = 0;
 var g_gameEnded = false;
-var g_shipInited = false;
 var g_music = true;
 
 window.onload = function(){
@@ -80,36 +79,34 @@ window.onload = function(){
             g_ship.particleSystemLeft.maxEmitBox = new BABYLON.Vector3(16, .25, -2.25);     // to...
             g_ship.particleSystemRight.minEmitBox = new BABYLON.Vector3(11, -.25, 1.45);    // Starting from
             g_ship.particleSystemRight.maxEmitBox = new BABYLON.Vector3(16, .25, 2.25);     // to...
-    
-            g_shipInited = true;
-        });
-        
-        BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
-        { 
-            g_large = newMeshes[0];
-            g_large.position = new BABYLON.Vector3(100000, 0, 0);
-            g_large.scaling.x = .2; 
-            g_large.scaling.y = .2; 
-            g_large.scaling.z = .2; 
-            initAsteroids(150);
-        });
-        
-        g_scene.executeWhenReady(function(){
-            // Once the scene is loaded, just register a render loop to render it
-            engine.runRenderLoop(function () {
-                g_scene.beforeRender = gameLoop();
-                g_scene.render();
-            });
-        
-            // Resize
-            window.addEventListener("resize", function () {
-                engine.resize();
-            });
+            
+            BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
+            { 
+                g_large = newMeshes[0];
+                g_large.position = new BABYLON.Vector3(100000, 0, 0);
+                g_large.scaling.x = .2; 
+                g_large.scaling.y = .2; 
+                g_large.scaling.z = .2; 
+                initAsteroids(150);
+                
+                document.getElementById("loading").style.zIndex = -100;
+                
+                // Once the scene is loaded, just register a render loop to render it
+                engine.runRenderLoop(function () {
+                    g_scene.beforeRender = gameLoop();
+                    g_scene.render();
+                });
 
-            window.addEventListener("keydown", keyboardEvent, true);
-            window.addEventListener("keyup", keyboardEvent, true);
-            window.addEventListener("mousemove", mouseMoveEvent, true);
-            window.addEventListener("mousedown", mouseDownEvent, true);
+                // Resize
+                window.addEventListener("resize", function () {
+                    engine.resize();
+                });
+
+                window.addEventListener("keydown", keyboardEvent, true);
+                window.addEventListener("keyup", keyboardEvent, true);
+                window.addEventListener("mousemove", mouseMoveEvent, true);
+                window.addEventListener("mousedown", mouseDownEvent, true);
+            });
         });
     } 
 };
@@ -148,7 +145,7 @@ function updateAsteroids()
 
 function gameLoop()
 {
-    if(!g_gameEnded && g_shipInited)
+    if(!g_gameEnded)
     {
         updateShip();
         updateAsteroids();
@@ -194,7 +191,7 @@ function updateShip()
     g_ship.vY = (headPosition.y - g_ship.mesh.position.y) * 5;
     g_ship.vZ = (headPosition.z - g_ship.mesh.position.z) * 5;
         
-    if(g_shipInited && (g_ship.bMoveForward || g_ship.bMoveBackward))
+    if(g_ship.bMoveForward || g_ship.bMoveBackward)
     {
         g_ship.particleSystem.start();
         g_ship.particleSystemLeft.start();
