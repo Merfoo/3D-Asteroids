@@ -318,7 +318,7 @@ function makeLazer()
 
 function makeShipLazer(x, y, z)
 {
-    var lazer = BABYLON.Mesh.CreateCylinder("cylinder", 16, 0.6, 0.6, 6, g_scene, false);
+    var lazer = BABYLON.Mesh.CreateCylinder("cylinder", 10, 0.6, 0.6, 6, g_scene, false);
     lazer.material = new BABYLON.StandardMaterial("texture", g_scene);
     lazer.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
     lazer.position = new BABYLON.Vector3(x, y, z);
@@ -433,7 +433,7 @@ function makeShipParticle(mesh)
         particleSystem.maxSize = 3.5;
         particleSystem.minLifeTime = 0.01;
         particleSystem.maxLifeTime = 0.03;
-        particleSystem.emitRate = 750;
+        particleSystem.emitRate = 500;
         particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
         particleSystem.direction1 = new BABYLON.Vector3(0, 10, -0); // (width, depth, height)
         particleSystem.direction2 = new BABYLON.Vector3(0, -10, 0);
