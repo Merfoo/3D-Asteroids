@@ -18,16 +18,16 @@ Ship = function(mesh)
     this.particleSystem = null;
     this.particleSystemLeft = null;
     this.particleSystemRight = null;
+    this.vXMax = 0;
+    this.vYMax = 0;
+    this.vZMax = 0;
+    this.vConst = 0;
+    this.vConstInc = 0.005;
     this.vX = 0;
     this.vY = 0;
     this.vZ = 0;
-    this.rX = 0;
-    this.rY = 0;
-    this.rZ = 0;
     
     this.bMoveForward = false;
-    this.bMoveBackward = false;
-    this.bIsShooting = false;
     this.killedAsteroids = 0;
     this.lives = 100;
 };

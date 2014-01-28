@@ -8,7 +8,7 @@ var g_ship;
 var g_camera;
 var g_mainLazer;
 var g_mainAsteroid;
-var g_maxSize = 300;
+var g_maxSize = 400;
 var g_timeInit = 0;
 var g_timeEnd = 0;
 var g_gameEnded = false;
@@ -196,40 +196,43 @@ function gameLoop()
 }
 
 function updateShip()
-{
+{       
     var headPosition = g_ship.head.getAbsolutePosition();
-    g_ship.vX = (headPosition.x - g_ship.mesh.position.x) * 5;
-    g_ship.vY = (headPosition.y - g_ship.mesh.position.y) * 5;
-    g_ship.vZ = (headPosition.z - g_ship.mesh.position.z) * 5;
-        
-    if(g_ship.bMoveForward || g_ship.bMoveBackward)
+    g_ship.vXMax = (headPosition.x - g_ship.mesh.position.x) * 5;
+    g_ship.vYMax = (headPosition.y - g_ship.mesh.position.y) * 5;
+    g_ship.vZMax = (headPosition.z - g_ship.mesh.position.z) * 5;
+    
+    if(g_ship.bMoveForward)
     {
         g_ship.particleSystem.start();
         g_ship.particleSystemLeft.start();
         g_ship.particleSystemRight.start();
+        g_ship.vConst += g_ship.vConstInc;
         
-        if(g_ship.bMoveForward)
-        {       
-            g_ship.mesh.position.x += g_ship.vX;
-            g_ship.mesh.position.y += g_ship.vY;
-            g_ship.mesh.position.z += g_ship.vZ;
-        }
-        
-        if(g_ship.bMoveBackward)
-        {    
-            g_ship.mesh.position.x -= g_ship.vX;
-            g_ship.mesh.position.y -= g_ship.vY;
-            g_ship.mesh.position.z -= g_ship.vZ;
-        }
+        if(g_ship.vConst > 1)
+            g_ship.vConst = 1;
     }
     
     else
     {
-        g_ship.particleSystem.stop();
-        g_ship.particleSystemLeft.stop();
-        g_ship.particleSystemRight.stop();
+        g_ship.vConst -= g_ship.vConstInc;
+        
+        if(g_ship.vConst < 0)
+        {
+            g_ship.particleSystem.stop();
+            g_ship.particleSystemLeft.stop();
+            g_ship.particleSystemRight.stop();
+            g_ship.vConst = 0;
+        }
     }
 
+    g_ship.vX = g_ship.vXMax * g_ship.vConst;
+    g_ship.vY = g_ship.vYMax * g_ship.vConst;
+    g_ship.vZ = g_ship.vZMax * g_ship.vConst;
+    g_ship.mesh.position.x += g_ship.vX;
+    g_ship.mesh.position.y += g_ship.vY;
+    g_ship.mesh.position.z += g_ship.vZ;
+        
     if(Math.abs(g_mouse.angY + g_angOffSet.angY) <= 111)
     {
         var diffAngX = (g_mouse.angX - g_mouse.lastAngX);
@@ -249,8 +252,8 @@ function updateShip()
 
         g_ship.mesh.rotation.y = toRadian(g_mouse.angX + g_angOffSet.angX);
         g_ship.mesh.rotation.z = toRadian(g_mouse.angY + g_angOffSet.angY);
-        g_camera.beta = -1 * toRadian((g_mouse.angY * .7) - 80 + g_angOffSet.angY);
-        g_camera.alpha = -1 * toRadian((g_mouse.angX * .7) + g_angOffSet.angX); 
+        g_camera.beta = -1 * toRadian((g_mouse.angY * .65) - 80 + g_angOffSet.angY);
+        g_camera.alpha = -1 * toRadian((g_mouse.angX * .65) + g_angOffSet.angX); 
     }   
 }
 
@@ -266,10 +269,6 @@ function keyboardEvent(event)
             case g_keyboardIds.w:
                 g_ship.bMoveForward = true;
                 break;
-            
-            case g_keyboardIds.s:
-                g_ship.bMoveBackward = true;
-                break;
 
             default:
                 break;
@@ -283,11 +282,7 @@ function keyboardEvent(event)
             case g_keyboardIds.w:
                 g_ship.bMoveForward = false;
                 break;
-            
-            case g_keyboardIds.s:
-                g_ship.bMoveBackward = false;
-                break;
-            
+                
             case g_keyboardIds.m:
                 if (g_music) 
                 {
@@ -403,10 +398,12 @@ function resetAsteroid(index)
             z = g_maxSize - 1 + g_ship.mesh.position.z;
             break;
     }
-
-    var vX = (g_ship.mesh.position.x - x) / getRandomNumber(100, 200); 
-    var vY = (g_ship.mesh.position.y - y) / getRandomNumber(100, 200); 
-    var vZ = (g_ship.mesh.position.z - z) / getRandomNumber(100, 200);
+    
+    var minConst = g_maxSize * 0.4;
+    var maxConst = g_maxSize * 0.7;
+    var vX = (g_ship.mesh.position.x - x) / getRandomNumber(minConst, maxConst); 
+    var vY = (g_ship.mesh.position.y - y) / getRandomNumber(minConst, maxConst); 
+    var vZ = (g_ship.mesh.position.z - z) / getRandomNumber(minConst, maxConst);
     
     g_asteroids[index].mesh.position.x = x;
     g_asteroids[index].mesh.position.y = y;
