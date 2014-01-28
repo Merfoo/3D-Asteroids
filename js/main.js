@@ -54,7 +54,7 @@ window.onload = function(){
         g_mainLazer.position = new BABYLON.Vector3(100000, 0, 0);
     
         // Load models
-        BABYLON.SceneLoader.ImportMesh("", "models/exampleScene/", "Viper.babylon", g_scene, function (newMeshes) 
+        BABYLON.SceneLoader.ImportMesh("", "scenes/viperShip/", "Viper.babylon", g_scene, function (newMeshes) 
         { 
             g_ship = newMeshes[0]; 
             g_ship.position = new BABYLON.Vector3(0, 0, 0);
@@ -86,7 +86,7 @@ window.onload = function(){
             g_ship.particleSystemRight.minEmitBox = new BABYLON.Vector3(11, -.25, 1.45);    // Starting from
             g_ship.particleSystemRight.maxEmitBox = new BABYLON.Vector3(16, .25, 2.25);     // to...
             
-            BABYLON.SceneLoader.ImportMesh("asteroid1", "models/scene/", "scene.babylon", g_scene, function (newMeshes) 
+            BABYLON.SceneLoader.ImportMesh("asteroid1", "scenes/gilShip/", "scene.babylon", g_scene, function (newMeshes) 
             { 
                 g_mainAsteroid = newMeshes[0];
                 g_mainAsteroid.position = new BABYLON.Vector3(100000, 0, 0);
