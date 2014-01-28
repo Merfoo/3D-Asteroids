@@ -8,16 +8,17 @@ var g_ship;
 var g_camera;
 var g_mainLazer;
 var g_mainAsteroid;
+var g_asteroidAmount = 300;
 var g_maxSize = 400;
 var g_timeInit = 0;
 var g_timeEnd = 0;
 var g_gameEnded = false;
 var g_music = true;
-var g_gameInited = false;
+var g_gameFirstLoaded = false;
 
 window.onload = function(){
     var canvas = document.getElementById("canvas");
-    g_timeInit = new Date().getTime() / 1000;
+    
 
     // Check support
     if (!BABYLON.Engine.isSupported())
@@ -57,6 +58,7 @@ window.onload = function(){
         { 
             g_ship = newMeshes[0]; 
             g_ship.position = new BABYLON.Vector3(0, 0, 0);
+            g_ship.rotation = new BABYLON.Vector3(0, 0, 0);
             g_camera.target = g_ship.position;
             g_camera.setPosition(new BABYLON.Vector3(50, 0, 0));
             g_ship = new Ship(g_ship); 
@@ -91,7 +93,8 @@ window.onload = function(){
                 g_mainAsteroid.scaling.x = .2; 
                 g_mainAsteroid.scaling.y = .2; 
                 g_mainAsteroid.scaling.z = .2; 
-                initAsteroids(300);
+                
+                initGame();
                 
                 // Once the scene is loaded, just register a render loop to render it
                 engine.runRenderLoop(function () {
@@ -101,10 +104,10 @@ window.onload = function(){
                 
                 g_scene.executeWhenReady(function()
                 {
-                    if(!g_gameInited)
+                    if(!g_gameFirstLoaded)
                     {
                         document.getElementById("loading").style.zIndex = -100;
-                        g_gameInited = true;
+                        g_gameFirstLoaded = true;
                     }
                 });
                 
@@ -121,6 +124,31 @@ window.onload = function(){
         });
     } 
 };
+
+function initGame()
+{
+    g_timeInit = new Date().getTime() / 1000;
+    g_ship.reset();
+    
+    for(var index = 0; index < g_asteroidAmount; index++)
+    {
+        if(!g_gameFirstLoaded)
+        {
+            var newMesh = g_mainAsteroid.clone();
+
+            newMesh.position = new BABYLON.Vector3(0, 0, 0); 
+            newMesh.scaling.x = (Math.random() * 0.2) + 0.15;
+            newMesh.scaling.y = (Math.random() * 0.2) + 0.15; 
+            newMesh.scaling.z = (Math.random() * 0.2) + 0.15;
+
+            var rX = getRandomNumber(-10, 10) / 100;
+            var rZ = getRandomNumber(-10, 10) / 100;
+            g_asteroids.push(new Asteroid(0, 0, 0, rX, 0, rZ, newMesh));
+        }
+        
+        resetAsteroid(index);
+    }
+}
 
 function updateLazers()
 {
@@ -183,14 +211,14 @@ function gameLoop()
                 {
                     g_timeEnd = new Date().getTime() / 1000;
                     alert("GAME OVER: Took you " + Math.floor(g_timeEnd - g_timeInit) + " seconds to die.");
-                    g_gameEnded = true;
-                    location.reload();
-                    break;
+                    initGame();
+//                    g_gameEnded = true;
+//                    location.reload();
+//                    break;
                 }
             }
             
             document.getElementById("health").innerHTML="Health: " + g_ship.lives + ", Asteroids Killed: " + g_ship.killedAsteroids;
-                
         }
     }
 }
@@ -344,25 +372,6 @@ function mouseMoveEvent(e)
     g_mouse.lastAngY = g_mouse.angY;
     g_mouse.angX = 90 - toDegree(Math.acos((e.clientX - halfWidth) / halfWidth));
     g_mouse.angY = 90 - toDegree(Math.acos((e.clientY - halfHeight) / halfHeight));
-}
-
-function initAsteroids(amount)
-{
-    for(var index = 0; index < amount; index++)
-    {
-        var newMesh = g_mainAsteroid.clone();
-
-        newMesh.position = new BABYLON.Vector3(0, 0, 0); 
-        newMesh.scaling.x = (Math.random() * 0.2) + 0.15;
-        newMesh.scaling.y = (Math.random() * 0.2) + 0.15; 
-        newMesh.scaling.z = (Math.random() * 0.2) + 0.15;
-        
-        var rX = getRandomNumber(-10, 10) / 100;
-        var rZ = getRandomNumber(-10, 10) / 100;
-        
-        g_asteroids.push(new Asteroid(0, 0, 0, rX, 0, rZ, newMesh));
-        resetAsteroid(index);
-    }
 }
 
 function resetAsteroid(index)

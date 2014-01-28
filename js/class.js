@@ -30,6 +30,25 @@ Ship = function(mesh)
     this.bMoveForward = false;
     this.killedAsteroids = 0;
     this.lives = 100;
+    
+    this.reset = function()
+    {
+        this.vXMax = 0;
+        this.vYMax = 0;
+        this.vZMax = 0;
+        this.vConst = 0;
+        this.vX = 0;
+        this.vY = 0;
+        this.vZ = 0;
+
+        this.bMoveForward = false;
+        this.killedAsteroids = 0;
+        this.lives = 100;
+        this.mesh.position.x = 0;
+        this.mesh.position.y = 0;
+        this.mesh.position.z = 0;
+        this.mesh.rotation = new BABYLON.Vector3(0, 0, 0);
+    };
 };
 
 Laser = function(vX, vY, vZ, mesh)
