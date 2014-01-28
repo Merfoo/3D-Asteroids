@@ -22,7 +22,7 @@ Ship = function(mesh)
     this.vYMax = 0;
     this.vZMax = 0;
     this.vConst = 0;
-    this.vConstInc = 0.005;
+    this.vConstInc = 0.01;
     this.vX = 0;
     this.vY = 0;
     this.vZ = 0;
@@ -54,7 +54,6 @@ Ship = function(mesh)
 Laser = function(vX, vY, vZ, mesh)
 {
     this.mesh = mesh;
-    this.particleSystem = null;
     this.vX = vX;
     this.vY = vY;
     this.vZ = vZ;
