@@ -73,11 +73,11 @@ window.onload = function(){
             g_ship.particleSystemLeft = makeShipParticle(g_ship.mesh); 
             g_ship.particleSystemRight = makeShipParticle(g_ship.mesh); 
             g_ship.particleSystem.minEmitBox = new BABYLON.Vector3(14, 1.25, -.25);    // Starting from
-            g_ship.particleSystem.maxEmitBox = new BABYLON.Vector3(21, 2.0, .25);     // to...
+            g_ship.particleSystem.maxEmitBox = new BABYLON.Vector3(18, 2.0, .25);     // to...
             g_ship.particleSystemLeft.minEmitBox = new BABYLON.Vector3(14, -.25, -1.45);    // Starting from
-            g_ship.particleSystemLeft.maxEmitBox = new BABYLON.Vector3(21, .25, -2.25);     // to...
+            g_ship.particleSystemLeft.maxEmitBox = new BABYLON.Vector3(18, .25, -2.25);     // to...
             g_ship.particleSystemRight.minEmitBox = new BABYLON.Vector3(14, -.25, 1.45);    // Starting from
-            g_ship.particleSystemRight.maxEmitBox = new BABYLON.Vector3(21, .25, 2.25);     // to...
+            g_ship.particleSystemRight.maxEmitBox = new BABYLON.Vector3(18, .25, 2.25);     // to...
             g_camera.target = g_ship.mesh.position;
             g_camera.setPosition(new BABYLON.Vector3(50, 0, 0));
             
@@ -459,11 +459,11 @@ function makeShipParticle(mesh)
         particleSystem.color1 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
         particleSystem.color2 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
         particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.0, 0.0);
-        particleSystem.minSize = 1.75;
-        particleSystem.maxSize = 3.5;
-        particleSystem.minLifeTime = 0.001;
+        particleSystem.minSize = 0.75;
+        particleSystem.maxSize = 3.75;
+        particleSystem.minLifeTime = 0.0025;
         particleSystem.maxLifeTime = 0.0125;
-        particleSystem.emitRate = 1500;
+        particleSystem.emitRate = 750;
         particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
         particleSystem.direction1 = new BABYLON.Vector3(0, 10, -0); // (width, depth, height)
         particleSystem.direction2 = new BABYLON.Vector3(0, -10, 0);
