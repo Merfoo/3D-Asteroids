@@ -236,10 +236,10 @@ function updateAsteroids()
 }
 
 function gameLoop()
-{          
+{        
+    updateLazers();
     updateShip();
     updateAsteroids();
-    updateLazers();
 
     for(var i = 0; i < g_asteroids.length; i++) 
     {
@@ -389,7 +389,7 @@ function makeLazer()
     var vZ = (headPosition.z - zShip) * 7;
     var posLeft = g_ship.lazerHeadLeft.getAbsolutePosition();
     var posRight = g_ship.lazerHeadRight.getAbsolutePosition();
-
+    
     g_lazers.push(new Laser(vX, vY, vZ, makeShipLazer(posLeft.x + vX * 1.5, posLeft.y + vY * 1.5, posLeft.z + vZ * 1.5)));
     g_lazers.push(new Laser(vX, vY, vZ, makeShipLazer(posRight.x + vX * 1.5, posRight.y + vY * 1.5, posRight.z + vZ * 1.5)));
 }
