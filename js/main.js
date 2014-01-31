@@ -2,10 +2,9 @@ var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, m: 77, left: 37, 
 var g_mouse = { lastAngX: 0, lastAngY: 0, angX: 0, angY: 0, angOffX: 0, angOffY: 0, minAng: 70, angInc: 2 }; 
 var g_lazers = new Array();
 var g_asteroids = new Array();
+var g_timeGame = new Timer();
 var g_asteroidAmount = 300;
 var g_maxSize = 400;
-var g_timeInit = 0;
-var g_timeEnd = 0;
 var g_progShip = 0.0;
 var g_progAsteroid = 0.0;
 var g_music = true;
@@ -190,7 +189,7 @@ function initGame()
         resetAsteroid(index);
     }
     
-    g_timeInit = new Date().getTime() / 1000;
+    g_timeGame.start();
 }
 
 function updateLazers()
@@ -250,8 +249,8 @@ function gameLoop()
 
             if(g_ship.lives <= 0)
             {
-                g_timeEnd = new Date().getTime() / 1000;
-                alert("GAME OVER: Took you " + Math.floor(g_timeEnd - g_timeInit) + " seconds to die.");
+                g_timeGame.stop();
+                alert("GAME OVER: Took you " + Math.floor(g_timeGame.get()) + " seconds to die.");
                 initGame();
             }
         }

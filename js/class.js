@@ -58,3 +58,35 @@ Laser = function(vX, vY, vZ, mesh)
     this.vY = vY;
     this.vZ = vZ;
 };
+Timer = function()
+{
+    this.startTime = new Date().getTime() / 1000;;
+    this.endTime = new Date().getTime() / 1000;;
+    this.bIsRunning = false;
+    
+    this.start = function()
+    {
+        if(!this.bIsRunning)
+        {
+            this.startTime = new Date().getTime() / 1000;
+            this.bIsRunning = true;
+        }
+    };
+    
+    this.stop = function()
+    {
+      if(this.bIsRunning)
+      {
+          this.endTime = new Date().getTime() / 1000;
+          this.bIsRunning = false;
+      }
+    };
+    
+    this.get = function()
+    {
+        if(this.bIsRunning)
+            return (new Date().getTime() / 1000 ) - this.startTime;
+        
+        return Math.floor((this.endTime - this.startTime) * 100 + 0.5) / 100;
+    };
+};
