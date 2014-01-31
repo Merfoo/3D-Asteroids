@@ -10,7 +10,6 @@ var g_progShip = 0.0;
 var g_progAsteroid = 0.0;
 var g_music = true;
 var g_gameReady = false;
-var g_canvasLoading;
 var g_ship;
 var g_camera;
 var g_scene;
@@ -25,13 +24,7 @@ window.onload = function(){
         window.alert('Browser not supported');
     
     else 
-    {
-        // Loading Canvas
-        g_canvasLoading = document.getElementById("canvasLoading").getContext("2d");
-        g_canvasLoading.canvas.width = window.innerWidth;
-        g_canvasLoading.canvas.height = window.innerHeight;
-        progressLoop();
-        
+    {        
         // Babylon
         var engine = new BABYLON.Engine(canvas, true);
         
@@ -90,79 +83,74 @@ window.onload = function(){
                 g_ship.particleSystemRight.maxEmitBox = new BABYLON.Vector3(18, .25, 2.25);     // to...
                 g_camera.target = g_ship.mesh.position;
                 g_camera.setPosition(new BABYLON.Vector3(50, 0, 0));
-                g_progShip = 100;
+                //g_progShip = 100;
+            
+                BABYLON.SceneLoader.ImportMesh("asteroid1", "scenes/gilShip/", "scene.babylon", g_scene, 
+                    function (newMeshes) 
+                    { 
+                        g_mainAsteroid = newMeshes[0];
+                        g_mainAsteroid.position = new BABYLON.Vector3(100000, 0, 0);
+                        g_mainAsteroid.scaling.x = .2; 
+                        g_mainAsteroid.scaling.y = .2; 
+                        g_mainAsteroid.scaling.z = .2; 
+                        //g_progAsteroid = 100;
+
+                        initGame();
+                        document.getElementById("imgLoading").style.zIndex = -100;
+                        g_gameReady = true;
+                        
+                        // Once the scene is loaded, just register a render loop to render it
+                        engine.runRenderLoop(function () {
+                            if(g_gameReady)
+                            {    
+                                gameLoop();
+                                g_scene.render();
+                            }
+                        });
+
+                        // Resize
+                        window.addEventListener("resize", function () {
+                            engine.resize();
+                        });
+
+                        window.addEventListener("keydown", keyboardEvent, true);
+                        window.addEventListener("keyup", keyboardEvent, true);
+                        window.addEventListener("mousemove", mouseMoveEvent, true);
+                        window.addEventListener("mousedown", mouseDownEvent, true);
+                    }, 
+                    function(evt)
+                    {
+                        console.log("Asteroid");
+                        if(evt.lengthComputable)
+                            console.log(g_progAsteroid = (evt.loaded * 100 / evt.total).toFixed());
+                        
+                        document.getElementById("health").innerHTML="Asteroid Loading: " + g_progAsteroid;
+                        updateProgress();
+                    }
+                );
             },
             function(e)
             {
+                console.log("Ship");
                 if(e.lengthComputable)
-                    g_progShip = (e.loaded * 100 / e.total).toFixed();
+                    console.log(g_progShip = (e.loaded * 100 / e.total).toFixed());
+                
+                document.getElementById("health").innerHTML="Ship Loading: " + g_progShip;
+                updateProgress();
             }
         );
-        
-        BABYLON.SceneLoader.ImportMesh("asteroid1", "scenes/gilShip/", "scene.babylon", g_scene, 
-            function (newMeshes) 
-            { 
-                g_mainAsteroid = newMeshes[0];
-                g_mainAsteroid.position = new BABYLON.Vector3(100000, 0, 0);
-                g_mainAsteroid.scaling.x = .2; 
-                g_mainAsteroid.scaling.y = .2; 
-                g_mainAsteroid.scaling.z = .2; 
-                g_progAsteroid = 100;
-            }, 
-            function(e)
-            {
-                if(e.lengthComputable)
-                    g_progAsteroid = (e.loaded * 100 / e.total).toFixed();
-            }
-        ); 
-        
-        // Once the scene is loaded, just register a render loop to render it
-        engine.runRenderLoop(function () {
-            if(g_gameReady)
-            {    
-                gameLoop();
-                g_scene.render();
-            }
-        });
-
-        // Resize
-        window.addEventListener("resize", function () {
-            engine.resize();
-        });
-
-        window.addEventListener("keydown", keyboardEvent, true);
-        window.addEventListener("keyup", keyboardEvent, true);
-        window.addEventListener("mousemove", mouseMoveEvent, true);
-        window.addEventListener("mousedown", mouseDownEvent, true);
-    };
+    }
 };
 
-function progressLoop()
+function updateProgress()
 {
-    var loadingText = "NOW LOADING...";
-    var size = { width: g_canvasLoading.canvas.width, height: g_canvasLoading.canvas.height };
-    var prog = (g_progShip + g_progAsteroid) * 100 / 200;
-    
-    console.log(prog);
-    g_canvasLoading.fillStyle = "black";
-    g_canvasLoading.fillRect(0, 0, size.width, size.height);
-    
-    g_canvasLoading.textBaseline = "top";
-    g_canvasLoading.fillStyle = "white";
-    g_canvasLoading.font = "150px Calibri";
-    g_canvasLoading.fillText(loadingText, size.width * 0.13, size.height * 0.2);
-    g_canvasLoading.font = "75px Calibri";
-    g_canvasLoading.fillText(prog + "%", size.width * 0.75, size.height * 0.5);
-    
-    if(prog === 100)
-    {
-        initGame();
-        document.getElementById("canvasLoading").style.zIndex = -100;
-        g_gameReady = true;
-    }
-    
-    else
-        window.setTimeout(progressLoop, 10);
+//    if(g_progShip === 100 && g_progAsteroid === 100);
+//    {
+//        console.log(g_progShip + " wtf " + g_progAsteroid);
+//        initGame();
+//        document.getElementsByName("imgLoading").style.zIndex = -100;
+//        g_gameReady = true;
+//    }
 }
 
 function initGame()

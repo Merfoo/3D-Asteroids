@@ -7,7 +7,7 @@ html,body,#canvasGame
     overflow: hidden;
 }
 
-#canvasLoading
+#imgLoading
 {
     z-index: 100;
     position: absolute;
@@ -19,6 +19,7 @@ html,body,#canvasGame
 
 #health
 {
+    z-index: 200;
     position: absolute;
     top: 0px;
     left: 0px;
