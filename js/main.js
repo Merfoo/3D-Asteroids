@@ -10,11 +10,12 @@ var g_progShip = 0.0;
 var g_progAsteroid = 0.0;
 var g_music = true;
 var g_gameReady = false;
-var g_ship;
-var g_camera;
-var g_scene;
-var g_mainLazer;
-var g_mainAsteroid;
+var g_canvasLoading = null;
+var g_ship = null;
+var g_camera = null;
+var g_scene = null;
+var g_mainLazer = null;
+var g_mainAsteroid = null;
 
 window.onload = function(){
     var canvas = document.getElementById("canvasGame");
@@ -24,7 +25,13 @@ window.onload = function(){
         window.alert('Browser not supported');
     
     else 
-    {        
+    {
+        // Loading Canvas
+        g_canvasLoading = document.getElementById("canvasLoading").getContext("2d");
+        g_canvasLoading.canvas.width = window.innerWidth;
+        g_canvasLoading.canvas.height = window.innerHeight;
+        progressLoop();
+        
         // Babylon
         var engine = new BABYLON.Engine(canvas, true);
         
@@ -83,8 +90,8 @@ window.onload = function(){
                 g_ship.particleSystemRight.maxEmitBox = new BABYLON.Vector3(18, .25, 2.25);     // to...
                 g_camera.target = g_ship.mesh.position;
                 g_camera.setPosition(new BABYLON.Vector3(50, 0, 0));
-                //g_progShip = 100;
-            
+                g_progShip = 100;
+                
                 BABYLON.SceneLoader.ImportMesh("asteroid1", "scenes/gilShip/", "scene.babylon", g_scene, 
                     function (newMeshes) 
                     { 
@@ -93,11 +100,9 @@ window.onload = function(){
                         g_mainAsteroid.scaling.x = .2; 
                         g_mainAsteroid.scaling.y = .2; 
                         g_mainAsteroid.scaling.z = .2; 
-                        //g_progAsteroid = 100;
-
+                        g_progAsteroid = 100;
+                        
                         initGame();
-                        document.getElementById("imgLoading").style.zIndex = -100;
-                        g_gameReady = true;
                         
                         // Once the scene is loaded, just register a render loop to render it
                         engine.runRenderLoop(function () {
@@ -118,49 +123,56 @@ window.onload = function(){
                         window.addEventListener("mousemove", mouseMoveEvent, true);
                         window.addEventListener("mousedown", mouseDownEvent, true);
                     }, 
-                    function(evt)
+                    function(e)
                     {
-                        console.log("Asteroid");
-                        if(evt.lengthComputable)
-                            console.log(g_progAsteroid = (evt.loaded * 100 / evt.total).toFixed());
-                        
-                        document.getElementById("health").innerHTML="Asteroid Loading: " + g_progAsteroid;
-                        updateProgress();
+                        if(e.lengthComputable)
+                            g_progAsteroid = (e.loaded * 100 / e.total).toFixed();
+
+                        progressLoop();
                     }
-                );
+                ); 
             },
             function(e)
             {
-                console.log("Ship");
                 if(e.lengthComputable)
-                    console.log(g_progShip = (e.loaded * 100 / e.total).toFixed());
+                    g_progShip = (e.loaded * 100 / e.total).toFixed();
                 
-                document.getElementById("health").innerHTML="Ship Loading: " + g_progShip;
-                updateProgress();
+                progressLoop();
             }
         );
     }
 };
 
-function updateProgress()
+function progressLoop()
 {
-//    if(g_progShip === 100 && g_progAsteroid === 100);
-//    {
-//        console.log(g_progShip + " wtf " + g_progAsteroid);
-//        initGame();
-//        document.getElementsByName("imgLoading").style.zIndex = -100;
-//        g_gameReady = true;
-//    }
+    var loadingText = "NOW LOADING...";
+    var size = { width: g_canvasLoading.canvas.width, height: g_canvasLoading.canvas.height };
+    var prog = Math.floor((num(g_progShip) + num(g_progAsteroid)) * 100 / 200);
+    
+    g_canvasLoading.fillStyle = "black";
+    g_canvasLoading.fillRect(0, 0, size.width, size.height);
+    
+    g_canvasLoading.textBaseline = "top";
+    g_canvasLoading.fillStyle = "white";
+    g_canvasLoading.font = "150px Calibri";
+    g_canvasLoading.fillText(loadingText, size.width * 0.13, size.height * 0.2);
+    g_canvasLoading.font = "75px Calibri";
+    g_canvasLoading.fillText(prog + "%", size.width * 0.75, size.height * 0.5);
+    
+    if(num(prog) === 100)
+    {
+        document.getElementById("canvasLoading").style.zIndex = -100;
+        g_gameReady = true;
+    }
 }
 
 function initGame()
-{
-    g_timeInit = new Date().getTime() / 1000;
+{    
     g_ship.reset();
     
     for(var index = 0; index < g_asteroidAmount; index++)
     {
-        if(!g_gameReady)
+        if(g_asteroids.length < g_asteroidAmount)
         {
             var newMesh = g_mainAsteroid.clone();
 
@@ -176,6 +188,8 @@ function initGame()
         
         resetAsteroid(index);
     }
+    
+    g_timeInit = new Date().getTime() / 1000;
 }
 
 function updateLazers()
@@ -509,4 +523,10 @@ function makeShipParticle(mesh)
         particleSystem.disposeOnStop = false;
         
         return particleSystem;
+}
+
+// Forces javascript to interpret the variable as a number
+function num(number)
+{
+    return number - 0;
 }
