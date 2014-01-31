@@ -448,7 +448,7 @@ function resetAsteroid(index)
     // Const for asteroi velocity
     var minConst = g_maxSize * 0.4;
     var maxConst = g_maxSize * 0.7;
-    var shipRadius = 150;
+    var shipRadius = 50;
     var newX = g_ship.mesh.position.x + getRandomNumber(-shipRadius, shipRadius);
     var newY = g_ship.mesh.position.y + getRandomNumber(-shipRadius, shipRadius);
     var newZ = g_ship.mesh.position.z + getRandomNumber(-shipRadius, shipRadius);
