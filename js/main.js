@@ -102,6 +102,7 @@ window.onload = function(){
                         g_mainAsteroid.scaling.z = .2; 
                         g_progAsteroid = 100;
                         
+                        progressLoop();
                         initGame();
                         
                         // Once the scene is loaded, just register a render loop to render it
@@ -444,11 +445,16 @@ function resetAsteroid(index)
             break;
     }
     
+    // Const for asteroi velocity
     var minConst = g_maxSize * 0.4;
     var maxConst = g_maxSize * 0.7;
-    var vX = (g_ship.mesh.position.x - x) / getRandomNumber(minConst, maxConst); 
-    var vY = (g_ship.mesh.position.y - y) / getRandomNumber(minConst, maxConst); 
-    var vZ = (g_ship.mesh.position.z - z) / getRandomNumber(minConst, maxConst);
+    var shipRadius = 150;
+    var newX = g_ship.mesh.position.x + getRandomNumber(-shipRadius, shipRadius);
+    var newY = g_ship.mesh.position.y + getRandomNumber(-shipRadius, shipRadius);
+    var newZ = g_ship.mesh.position.z + getRandomNumber(-shipRadius, shipRadius);
+    var vX = (newX - x) / getRandomNumber(minConst, maxConst); 
+    var vY = (newY - y) / getRandomNumber(minConst, maxConst); 
+    var vZ = (newZ - z) / getRandomNumber(minConst, maxConst);
     
     g_asteroids[index].mesh.position.x = x;
     g_asteroids[index].mesh.position.y = y;
