@@ -42,6 +42,7 @@ Ship = function(mesh)
         this.vZ = 0;
 
         this.bMoveForward = false;
+        this.bShooting = false;
         this.killedAsteroids = 0;
         this.lives = 100;
         this.mesh.position.x = 0;
@@ -58,6 +59,7 @@ Laser = function(vX, vY, vZ, mesh)
     this.vY = vY;
     this.vZ = vZ;
 };
+
 Timer = function()
 {
     this.startTime = new Date().getTime() / 1000;;

@@ -3,6 +3,8 @@ var g_mouse = { lastAngX: 0, lastAngY: 0, angX: 0, angY: 0, angOffX: 0, angOffY:
 var g_lazers = new Array();
 var g_asteroids = new Array();
 var g_timeGame = new Timer();
+var g_timeLazer = new Timer();
+var g_lazerMinTime = 0.33;
 var g_asteroidAmount = 300;
 var g_maxSize = 400;
 var g_progShip = 0.0;
@@ -120,8 +122,9 @@ window.onload = function(){
 
                         window.addEventListener("keydown", keyboardEvent, true);
                         window.addEventListener("keyup", keyboardEvent, true);
-                        window.addEventListener("mousemove", mouseMoveEvent, true);
-                        window.addEventListener("mousedown", mouseDownEvent, true);
+                        window.addEventListener("mousemove", mouseEvent, true);
+                        window.addEventListener("mousedown", mouseEvent, true);
+                        window.addEventListener("mouseup", mouseEvent, true);
                     }, 
                     function(e)
                     {
@@ -190,10 +193,18 @@ function initGame()
     }
     
     g_timeGame.start();
+    g_timeLazer.start();
 }
 
 function updateLazers()
 {
+    if(g_timeLazer.get() > g_lazerMinTime && g_ship.bShooting)
+    {
+        makeLazer();
+        g_timeLazer.stop();
+        g_timeLazer.start();
+    }
+    
     for(var index = 0; index < g_lazers.length; index++)
     {
         g_lazers[index].mesh.position.x += g_lazers[index].vX;
@@ -225,7 +236,7 @@ function updateAsteroids()
 }
 
 function gameLoop()
-{      
+{          
     updateShip();
     updateAsteroids();
     updateLazers();
@@ -394,20 +405,24 @@ function makeShipLazer(x, y, z)
 }
 
 // Handles mousedown events
-function mouseDownEvent()
+function mouseEvent(event)
 {
-    makeLazer();
-}
+    if(event.type === "mousemove")
+    {    
+        var halfWidth = Math.floor(window.innerWidth / 2);
+        var halfHeight = Math.floor(window.innerHeight / 2);
 
-function mouseMoveEvent(e)
-{
-    var halfWidth = Math.floor(window.innerWidth / 2);
-    var halfHeight = Math.floor(window.innerHeight / 2);
+        g_mouse.lastAngX = g_mouse.angX;
+        g_mouse.lastAngY = g_mouse.angY;
+        g_mouse.angX = 90 - toDegree(Math.acos((event.clientX - halfWidth) / halfWidth));
+        g_mouse.angY = 90 - toDegree(Math.acos((event.clientY - halfHeight) / halfHeight));
+    }
     
-    g_mouse.lastAngX = g_mouse.angX;
-    g_mouse.lastAngY = g_mouse.angY;
-    g_mouse.angX = 90 - toDegree(Math.acos((e.clientX - halfWidth) / halfWidth));
-    g_mouse.angY = 90 - toDegree(Math.acos((e.clientY - halfHeight) / halfHeight));
+    if(event.type === "mousedown")
+        g_ship.bShooting = true;
+    
+    if(event.type === "mouseup")
+        g_ship.bShooting = false;
 }
 
 function resetAsteroid(index)
