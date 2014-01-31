@@ -1,5 +1,5 @@
 var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, m: 77, left: 37, up: 38, right: 39, down: 40 };
-var g_mouse = { lastAngX: 0, lastAngY: 0, angX: 0, angY: 0, angOffX: 0, angOffY: 0, minAng: 70, angInc: 2 }; 
+var g_mouse = { lastAngX: 0, lastAngY: 0, angX: 0, angY: 0, angOffX: 0, angOffY: 0, minAng: 70, angInc: 1.5 }; 
 var g_lazers = new Array();
 var g_asteroids = new Array();
 var g_timeGame = new Timer();
@@ -324,11 +324,11 @@ function updateShip()
 
         if(g_mouse.angX < -g_mouse.minAng && diffAngX <= 0)
             g_mouse.angOffX -= g_mouse.angInc;
-
+        
         g_ship.mesh.rotation.y = toRadian(g_mouse.angX + g_mouse.angOffX);
         g_ship.mesh.rotation.z = toRadian(g_mouse.angY + g_mouse.angOffY);
         g_camera.beta = -1 * toRadian((g_mouse.angY * .65) - 80 + g_mouse.angOffY);
-        g_camera.alpha = -1 * toRadian((g_mouse.angX * .65) + g_mouse.angOffX); 
+        g_camera.alpha = -1 * toRadian((g_mouse.angX * .65) + g_mouse.angOffX);
     }   
 }
 
