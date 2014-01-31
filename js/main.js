@@ -1,13 +1,16 @@
 var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, m: 77, left: 37, up: 38, right: 39, down: 40 };
-var g_mouse = {lastAngX: 0, lastAngY: 0, angX: 0, angY: 0, angOffX: 0, angOffY: 0, minAng: 70, angInc: 2 }; 
+var g_mouse = { lastAngX: 0, lastAngY: 0, angX: 0, angY: 0, angOffX: 0, angOffY: 0, minAng: 70, angInc: 2 }; 
 var g_lazers = new Array();
 var g_asteroids = new Array();
 var g_asteroidAmount = 300;
 var g_maxSize = 400;
 var g_timeInit = 0;
 var g_timeEnd = 0;
+var g_progShip = 0.0;
+var g_progAsteroid = 0.0;
 var g_music = true;
-var g_gameFirstLoaded = false;
+var g_gameReady = false;
+var g_canvasLoading;
 var g_ship;
 var g_camera;
 var g_scene;
@@ -15,14 +18,20 @@ var g_mainLazer;
 var g_mainAsteroid;
 
 window.onload = function(){
-    var canvas = document.getElementById("canvas");
-
+    var canvas = document.getElementById("canvasGame");
+    
     // Check support
     if (!BABYLON.Engine.isSupported())
         window.alert('Browser not supported');
     
     else 
     {
+        // Loading Canvas
+        g_canvasLoading = document.getElementById("canvasLoading").getContext("2d");
+        g_canvasLoading.canvas.width = window.innerWidth;
+        g_canvasLoading.canvas.height = window.innerHeight;
+        progressLoop();
+        
         // Babylon
         var engine = new BABYLON.Engine(canvas, true);
         
@@ -47,78 +56,114 @@ window.onload = function(){
         g_mainLazer.material = new BABYLON.StandardMaterial("texture", g_scene);
         g_mainLazer.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
         g_mainLazer.position = new BABYLON.Vector3(100000, 0, 0);
-    
+        
         // Load models
-        BABYLON.SceneLoader.ImportMesh("", "scenes/viperShip/", "Viper.babylon", g_scene, function (newMeshes) 
-        { 
-            g_ship = newMeshes[0]; 
-            g_ship.position = new BABYLON.Vector3(0, 0, 0);
-            g_ship.rotation = new BABYLON.Vector3(0, 0, 0);
-            g_ship = new Ship(g_ship); 
-            g_ship.head = BABYLON.Mesh.CreateBox("head", 1.0, g_scene);
-            g_ship.head.parent = g_ship.mesh;
-            g_ship.head.position.x = -1;
-            g_ship.head.isVisible = false;
-            g_ship.lazerHeadLeft = BABYLON.Mesh.CreateBox("lazerHeadLeft", 1.0, g_scene);
-            g_ship.lazerHeadLeft.parent = g_ship.mesh;
-            g_ship.lazerHeadLeft.position.z = -2.3;
-            g_ship.lazerHeadLeft.position.y = -.25;
-            g_ship.lazerHeadLeft.isVisible = false;
-            g_ship.lazerHeadRight = BABYLON.Mesh.CreateBox("lazerHeadRight", 1.0, g_scene);
-            g_ship.lazerHeadRight.parent = g_ship.mesh;
-            g_ship.lazerHeadRight.position.z = 2.3;
-            g_ship.lazerHeadRight.position.y = -.25;
-            g_ship.lazerHeadRight.isVisible = false;
-            g_ship.particleSystem = makeShipParticle(g_ship.mesh); 
-            g_ship.particleSystemLeft = makeShipParticle(g_ship.mesh); 
-            g_ship.particleSystemRight = makeShipParticle(g_ship.mesh); 
-            g_ship.particleSystem.minEmitBox = new BABYLON.Vector3(14, 1.25, -.25);    // Starting from
-            g_ship.particleSystem.maxEmitBox = new BABYLON.Vector3(18, 2.0, .25);     // to...
-            g_ship.particleSystemLeft.minEmitBox = new BABYLON.Vector3(14, -.25, -1.45);    // Starting from
-            g_ship.particleSystemLeft.maxEmitBox = new BABYLON.Vector3(18, .25, -2.25);     // to...
-            g_ship.particleSystemRight.minEmitBox = new BABYLON.Vector3(14, -.25, 1.45);    // Starting from
-            g_ship.particleSystemRight.maxEmitBox = new BABYLON.Vector3(18, .25, 2.25);     // to...
-            g_camera.target = g_ship.mesh.position;
-            g_camera.setPosition(new BABYLON.Vector3(50, 0, 0));
-            
-            BABYLON.SceneLoader.ImportMesh("asteroid1", "scenes/gilShip/", "scene.babylon", g_scene, function (newMeshes) 
+        BABYLON.SceneLoader.ImportMesh("", "scenes/viperShip/", "Viper.babylon", g_scene, 
+            function (newMeshes) 
+            { 
+                g_ship = newMeshes[0]; 
+                g_ship.position = new BABYLON.Vector3(0, 0, 0);
+                g_ship.rotation = new BABYLON.Vector3(0, 0, 0);
+                g_ship = new Ship(g_ship); 
+                g_ship.head = BABYLON.Mesh.CreateBox("head", 1.0, g_scene);
+                g_ship.head.parent = g_ship.mesh;
+                g_ship.head.position.x = -1;
+                g_ship.head.isVisible = false;
+                g_ship.lazerHeadLeft = BABYLON.Mesh.CreateBox("lazerHeadLeft", 1.0, g_scene);
+                g_ship.lazerHeadLeft.parent = g_ship.mesh;
+                g_ship.lazerHeadLeft.position.z = -2.3;
+                g_ship.lazerHeadLeft.position.y = -.25;
+                g_ship.lazerHeadLeft.isVisible = false;
+                g_ship.lazerHeadRight = BABYLON.Mesh.CreateBox("lazerHeadRight", 1.0, g_scene);
+                g_ship.lazerHeadRight.parent = g_ship.mesh;
+                g_ship.lazerHeadRight.position.z = 2.3;
+                g_ship.lazerHeadRight.position.y = -.25;
+                g_ship.lazerHeadRight.isVisible = false;
+                g_ship.particleSystem = makeShipParticle(g_ship.mesh); 
+                g_ship.particleSystemLeft = makeShipParticle(g_ship.mesh); 
+                g_ship.particleSystemRight = makeShipParticle(g_ship.mesh); 
+                g_ship.particleSystem.minEmitBox = new BABYLON.Vector3(14, 1.25, -.25);    // Starting from
+                g_ship.particleSystem.maxEmitBox = new BABYLON.Vector3(18, 2.0, .25);     // to...
+                g_ship.particleSystemLeft.minEmitBox = new BABYLON.Vector3(14, -.25, -1.45);    // Starting from
+                g_ship.particleSystemLeft.maxEmitBox = new BABYLON.Vector3(18, .25, -2.25);     // to...
+                g_ship.particleSystemRight.minEmitBox = new BABYLON.Vector3(14, -.25, 1.45);    // Starting from
+                g_ship.particleSystemRight.maxEmitBox = new BABYLON.Vector3(18, .25, 2.25);     // to...
+                g_camera.target = g_ship.mesh.position;
+                g_camera.setPosition(new BABYLON.Vector3(50, 0, 0));
+                g_progShip = 100;
+            },
+            function(e)
+            {
+                if(e.lengthComputable)
+                    g_progShip = (e.loaded * 100 / e.total).toFixed();
+            }
+        );
+        
+        BABYLON.SceneLoader.ImportMesh("asteroid1", "scenes/gilShip/", "scene.babylon", g_scene, 
+            function (newMeshes) 
             { 
                 g_mainAsteroid = newMeshes[0];
                 g_mainAsteroid.position = new BABYLON.Vector3(100000, 0, 0);
                 g_mainAsteroid.scaling.x = .2; 
                 g_mainAsteroid.scaling.y = .2; 
                 g_mainAsteroid.scaling.z = .2; 
-                
-                initGame();
-                
-                // Once the scene is loaded, just register a render loop to render it
-                engine.runRenderLoop(function () {
-                    gameLoop();
-                    g_scene.render();
-                });
-                
-                g_scene.executeWhenReady(function()
-                {
-                    if(!g_gameFirstLoaded)
-                    {
-                        document.getElementById("loading").style.zIndex = -100;
-                        g_gameFirstLoaded = true;
-                    }
-                });
-                
-                // Resize
-                window.addEventListener("resize", function () {
-                    engine.resize();
-                });
-
-                window.addEventListener("keydown", keyboardEvent, true);
-                window.addEventListener("keyup", keyboardEvent, true);
-                window.addEventListener("mousemove", mouseMoveEvent, true);
-                window.addEventListener("mousedown", mouseDownEvent, true);
-            });
+                g_progAsteroid = 100;
+            }, 
+            function(e)
+            {
+                if(e.lengthComputable)
+                    g_progAsteroid = (e.loaded * 100 / e.total).toFixed();
+            }
+        ); 
+        
+        // Once the scene is loaded, just register a render loop to render it
+        engine.runRenderLoop(function () {
+            if(g_gameReady)
+            {    
+                gameLoop();
+                g_scene.render();
+            }
         });
-    } 
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+
+        window.addEventListener("keydown", keyboardEvent, true);
+        window.addEventListener("keyup", keyboardEvent, true);
+        window.addEventListener("mousemove", mouseMoveEvent, true);
+        window.addEventListener("mousedown", mouseDownEvent, true);
+    };
 };
+
+function progressLoop()
+{
+    var loadingText = "NOW LOADING...";
+    var size = { width: g_canvasLoading.canvas.width, height: g_canvasLoading.canvas.height };
+    var prog = (g_progShip + g_progAsteroid) * 100 / 200;
+    
+    console.log(prog);
+    g_canvasLoading.fillStyle = "black";
+    g_canvasLoading.fillRect(0, 0, size.width, size.height);
+    
+    g_canvasLoading.textBaseline = "top";
+    g_canvasLoading.fillStyle = "white";
+    g_canvasLoading.font = "150px Calibri";
+    g_canvasLoading.fillText(loadingText, size.width * 0.13, size.height * 0.2);
+    g_canvasLoading.font = "75px Calibri";
+    g_canvasLoading.fillText(prog + "%", size.width * 0.75, size.height * 0.5);
+    
+    if(prog === 100)
+    {
+        initGame();
+        document.getElementById("canvasLoading").style.zIndex = -100;
+        g_gameReady = true;
+    }
+    
+    else
+        window.setTimeout(progressLoop, 10);
+}
 
 function initGame()
 {
@@ -127,7 +172,7 @@ function initGame()
     
     for(var index = 0; index < g_asteroidAmount; index++)
     {
-        if(!g_gameFirstLoaded)
+        if(!g_gameReady)
         {
             var newMesh = g_mainAsteroid.clone();
 
