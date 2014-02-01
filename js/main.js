@@ -563,7 +563,7 @@ function makeExplodingParticle(x, y, z)
         particleSystem.maxSize = 50;
         particleSystem.minLifeTime = 0.2;
         particleSystem.maxLifeTime = 0.5;
-        particleSystem.emitRate = 1000;
+        particleSystem.emitRate = 500;
         particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
         particleSystem.direction1 = new BABYLON.Vector3(-10, -10, -10); // (width, depth, height)
         particleSystem.direction2 = new BABYLON.Vector3(10, 10, 10);
