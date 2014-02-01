@@ -4,8 +4,8 @@ var g_lazers = new Array();
 var g_asteroids = new Array();
 var g_timeGame = new Timer();
 var g_timeLazer = new Timer();
-var g_lazerMinTime = 0.33;
-var g_asteroidAmount = 300;
+var g_lazerMinTime = 0.5;
+var g_asteroidAmount = 200;
 var g_maxSize = 400;
 var g_progShip = 0.0;
 var g_progAsteroid = 0.0;
@@ -248,6 +248,7 @@ function gameLoop()
             if(g_asteroids[i].mesh.intersectsPoint(g_lazers[lazerIndex].mesh.position))
             {    
                 g_ship.killedAsteroids++;
+                makeExplodingParticle(g_asteroids[i].mesh.position.x, g_asteroids[i].mesh.position.y, g_asteroids[i].mesh.position.z);
                 resetAsteroid(i);
                 g_lazers[lazerIndex].mesh.dispose();
                 g_lazers.splice(lazerIndex, 1);
@@ -543,6 +544,43 @@ function makeShipParticle(mesh)
         particleSystem.disposeOnStop = false;
         
         return particleSystem;
+}
+
+function makeExplodingParticle(x, y, z)
+{
+        var fountain = BABYLON.Mesh.CreateSphere("exposion", 1.0, 1.0, g_scene);
+        fountain.position = new BABYLON.Vector3(x, y, z);
+        fountain.isVisible = false;
+        var particleSystem = new BABYLON.ParticleSystem("particles", 1000, g_scene);
+        particleSystem.particleTexture = new BABYLON.Texture("images/Flare.png", g_scene);
+        particleSystem.emitter = fountain;  
+        particleSystem.minEmitBox = new BABYLON.Vector3(-10, -10, -10);    // Starting from
+        particleSystem.maxEmitBox = new BABYLON.Vector3(10, 10, 10);     // to...
+        particleSystem.color1 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
+        particleSystem.color2 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
+        particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.0, 0.0);
+        particleSystem.minSize = 1;
+        particleSystem.maxSize = 50;
+        particleSystem.minLifeTime = 0.2;
+        particleSystem.maxLifeTime = 0.5;
+        particleSystem.emitRate = 1000;
+        particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
+        particleSystem.direction1 = new BABYLON.Vector3(-10, -10, -10); // (width, depth, height)
+        particleSystem.direction2 = new BABYLON.Vector3(10, 10, 10);
+        particleSystem.minAngularSpeed = 0;
+        particleSystem.maxAngularSpeed = Math.PI * 2;
+        particleSystem.targetStopDuration = .1;
+        particleSystem.minEmitPower = 10;
+        particleSystem.maxEmitPower = 20;
+        particleSystem.updateSpeed = 0.005;
+        particleSystem.disposeOnStop = true;
+        
+        particleSystem.onDispose = function()
+        {
+            this.emitter.dispose();
+        };
+        
+        particleSystem.start();
 }
 
 // Forces javascript to interpret the variable as a number
