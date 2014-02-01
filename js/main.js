@@ -1,17 +1,18 @@
-var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, m: 77, left: 37, up: 38, right: 39, down: 40 };
-var g_mouse = { lastAngX: 0, lastAngY: 0, angX: 0, angY: 0, angOffX: 0, angOffY: 0, minAng: 70, angInc: 1.5 }; 
+var g_keyboardIds = { w: 87, s: 83, a: 65, d:68, q: 81, e: 69, m: 77, enter: 13};
+var g_mouse = { lastAngX: 0, lastAngY: 0, angX: 0, angY: 0, angOffX: 0, angOffY: 0, minAng: 70, angInc: 1.5 };
+var g_screen = { width: 0, height: 0 };
 var g_lazers = new Array();
 var g_asteroids = new Array();
 var g_timeGame = new Timer();
 var g_timeLazer = new Timer();
+var g_gameLost = false;
 var g_lazerMinTime = 0.5;
 var g_asteroidAmount = 200;
 var g_maxSize = 400;
 var g_progShip = 0.0;
 var g_progAsteroid = 0.0;
 var g_music = true;
-var g_gameReady = false;
-var g_canvasLoading = null;
+var g_canvasHud = null;
 var g_ship = null;
 var g_camera = null;
 var g_scene = null;
@@ -27,10 +28,15 @@ window.onload = function(){
     
     else 
     {
+        // Set screen size constant
+        g_screen.width = window.innerWidth;
+        g_screen.height = window.innerHeight;
+        
         // Loading Canvas
-        g_canvasLoading = document.getElementById("canvasLoading").getContext("2d");
-        g_canvasLoading.canvas.width = window.innerWidth;
-        g_canvasLoading.canvas.height = window.innerHeight;
+        g_canvasHud = document.getElementById("canvasHud").getContext("2d");
+        g_canvasHud.canvas.width = window.innerWidth;
+        g_canvasHud.canvas.height = window.innerHeight;
+        g_canvasHud.textBaseline = "top";
         progressLoop();
         
         // Babylon
@@ -108,11 +114,8 @@ window.onload = function(){
                         
                         // Once the scene is loaded, just register a render loop to render it
                         engine.runRenderLoop(function () {
-                            if(g_gameReady)
-                            {    
                                 gameLoop();
                                 g_scene.render();
-                            }
                         });
 
                         // Resize
@@ -149,28 +152,85 @@ window.onload = function(){
 function progressLoop()
 {
     var loadingText = "NOW LOADING...";
-    var size = { width: g_canvasLoading.canvas.width, height: g_canvasLoading.canvas.height };
+    var size = { width: g_canvasHud.canvas.width, height: g_canvasHud.canvas.height };
     var prog = Math.floor((num(g_progShip) + num(g_progAsteroid)) * 100 / 200);
     
-    g_canvasLoading.fillStyle = "black";
-    g_canvasLoading.fillRect(0, 0, size.width, size.height);
+    g_canvasHud.fillStyle = "black";
+    g_canvasHud.fillRect(0, 0, size.width, size.height);
+ 
+    g_canvasHud.fillStyle = "white";
+    g_canvasHud.font = "150px Calibri";
+    g_canvasHud.fillText(loadingText, size.width * 0.13, size.height * 0.2);
+    g_canvasHud.font = "75px Calibri";
+    g_canvasHud.fillText(prog + "%", size.width * 0.75, size.height * 0.5);
+}
+
+function updateHud()
+{
+    var health = "Health";
+    var healthBarWidth = g_screen.width * 0.4;
+    var asteroidKilled = "Asteroids Destroyed: " + g_ship.killedAsteroids;
+    var xDiff = healthBarWidth / 16;
+    var x1 = (g_screen.width / 2) - ((healthBarWidth / 2) * g_ship.getHealthRatio());
+    var x2 = (g_screen.width / 2) + ((healthBarWidth / 2) * g_ship.getHealthRatio());
+    var x3 = (x2 - xDiff) <= (g_screen.width / 2) ? (g_screen.width / 2) : (x2 - xDiff);
+    var x4 = (x1 + xDiff) >= (g_screen.width / 2) ? (g_screen.width / 2) : (x1 + xDiff);
+    var y1 = 40;
+    var y2 = 60;
     
-    g_canvasLoading.textBaseline = "top";
-    g_canvasLoading.fillStyle = "white";
-    g_canvasLoading.font = "150px Calibri";
-    g_canvasLoading.fillText(loadingText, size.width * 0.13, size.height * 0.2);
-    g_canvasLoading.font = "75px Calibri";
-    g_canvasLoading.fillText(prog + "%", size.width * 0.75, size.height * 0.5);
+    // Clear screen
+    g_canvasHud.clearRect(0, 0, g_screen.width, g_screen.height);
     
-    if(num(prog) === 100)
+    if(!g_gameLost)
     {
-        document.getElementById("canvasLoading").style.zIndex = -100;
-        g_gameReady = true;
+        // Text
+        g_canvasHud.fillStyle = "white";
+        g_canvasHud.font = "25px Calibri";
+        g_canvasHud.textAlign = "center";
+        g_canvasHud.fillText(health, (g_screen.width / 2), 5);
+        g_canvasHud.textAlign = "left";
+        g_canvasHud.font = "16px Calibri";
+        g_canvasHud.fillText(asteroidKilled, 5, 10);
+
+        // Health Bar
+        g_canvasHud.beginPath();
+        g_canvasHud.fillStyle = getHealthColor();
+        g_canvasHud.moveTo(x1, y1);     // Top Left
+        g_canvasHud.lineTo(x2, y1);     // Top Right
+        g_canvasHud.lineTo(x3, y2);     // Bottom Right
+        g_canvasHud.lineTo(x4, y2);     // Bottom Left
+        g_canvasHud.lineTo(x1, y1);             
+        g_canvasHud.fill();
     }
+    
+    else
+    {
+        var lostText = "YOU LIVED: " + Math.floor(g_timeGame.get()) + " secs";
+        var replayText = "Press enter to play again";
+        g_canvasHud.fillStyle = "white";
+        g_canvasHud.textAlign = "center";
+        g_canvasHud.font = "160px Calibri";
+        g_canvasHud.fillText(lostText, g_screen.width / 2, (g_screen.height / 2) - 160);
+        g_canvasHud.textAlign = "right";
+        g_canvasHud.font = "20px Calibri";
+        g_canvasHud.fillText(replayText, g_screen.width -10, 0);
+        g_canvasHud.textAlign = "right";
+        g_canvasHud.font = "33px Calibri";
+        g_canvasHud.fillText(asteroidKilled, g_screen.width / 2, (g_screen.height / 2) + 10);
+    }
+}
+
+function getHealthColor()
+{
+    var r = Math.floor((1.0 - g_ship.getHealthRatio()) * 255);
+    var g = Math.floor(g_ship.getHealthRatio() * 255);
+    
+    return rgbToHex(r, g, 0);
 }
 
 function initGame()
 {    
+    g_gameLost = false;
     g_ship.reset();
     
     for(var index = 0; index < g_asteroidAmount; index++)
@@ -236,39 +296,42 @@ function updateAsteroids()
 }
 
 function gameLoop()
-{        
-    updateLazers();
-    updateShip();
-    updateAsteroids();
-
-    for(var i = 0; i < g_asteroids.length; i++) 
+{       
+    if(!g_gameLost)
     {
-        for(var lazerIndex = 0; lazerIndex < g_lazers.length; lazerIndex++)
-        {
-            if(g_asteroids[i].mesh.intersectsPoint(g_lazers[lazerIndex].mesh.position))
-            {    
-                g_ship.killedAsteroids++;
-                makeExplodingParticle(g_asteroids[i].mesh.position.x, g_asteroids[i].mesh.position.y, g_asteroids[i].mesh.position.z);
-                resetAsteroid(i);
-                g_lazers[lazerIndex].mesh.dispose();
-                g_lazers.splice(lazerIndex, 1);
-            }
-        }
+        updateLazers();
+        updateShip();
+        updateAsteroids();
 
-        if(g_ship.head.intersectsMesh(g_asteroids[i].mesh, true)) 
+        for(var i = 0; i < g_asteroids.length; i++) 
         {
-            g_ship.lives--;
-
-            if(g_ship.lives <= 0)
+            for(var lazerIndex = 0; lazerIndex < g_lazers.length; lazerIndex++)
             {
-                g_timeGame.stop();
-                alert("GAME OVER: Took you " + Math.floor(g_timeGame.get()) + " seconds to die.");
-                initGame();
+                if(g_asteroids[i].mesh.intersectsPoint(g_lazers[lazerIndex].mesh.position))
+                {    
+                    g_ship.killedAsteroids++;
+                    makeExplodingAsteriodParticle(i);
+                    resetAsteroid(i);
+                    g_lazers[lazerIndex].mesh.dispose();
+                    g_lazers.splice(lazerIndex, 1);
+                }
+            }
+
+            if(g_ship.head.intersectsMesh(g_asteroids[i].mesh, true)) 
+            {
+                g_ship.lives--;
+
+                if(g_ship.lives <= 0)
+                {
+                    g_timeGame.stop();
+                    makeExplodingShipParticle();
+                    g_gameLost = true;
+                }
             }
         }
-
-        document.getElementById("health").innerHTML="Health: " + g_ship.lives + ", Asteroids Killed: " + g_ship.killedAsteroids;
     }
+    
+    updateHud();
 }
 
 function updateShip()
@@ -372,7 +435,11 @@ function keyboardEvent(event)
                     g_music = true;
                 }
                 break;
-
+            
+            case g_keyboardIds.enter:
+                initGame();
+                break;
+                
             default:
                 break;
         }
@@ -519,72 +586,127 @@ function outOfBounds(pos)
 
 function makeShipParticle(mesh)
 {
-        var particleSystem = new BABYLON.ParticleSystem("particles", 1000, g_scene);
-        particleSystem.particleTexture = new BABYLON.Texture("images/Flare.png", g_scene);
-        particleSystem.emitter = mesh;    
-        particleSystem.minEmitBox = new BABYLON.Vector3(14, 1.25, -.25);    // Starting from
-        particleSystem.maxEmitBox = new BABYLON.Vector3(21, 2.0, .25);     // to...
-        particleSystem.color1 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
-        particleSystem.color2 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
-        particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.0, 0.0);
-        particleSystem.minSize = 0.75;
-        particleSystem.maxSize = 3.75;
-        particleSystem.minLifeTime = 0.0025;
-        particleSystem.maxLifeTime = 0.0125;
-        particleSystem.emitRate = 750;
-        particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
-        particleSystem.direction1 = new BABYLON.Vector3(0, 10, -0); // (width, depth, height)
-        particleSystem.direction2 = new BABYLON.Vector3(0, -10, 0);
-        particleSystem.minAngularSpeed = 0;
-        particleSystem.maxAngularSpeed = Math.PI * 2;
-        particleSystem.targetStopDuration = 0;
-        particleSystem.minEmitPower = 1;
-        particleSystem.maxEmitPower = 3;
-        particleSystem.updateSpeed = 0.005;
-        particleSystem.disposeOnStop = false;
-        
-        return particleSystem;
+    var particleSystem = new BABYLON.ParticleSystem("particles", 1000, g_scene);
+    particleSystem.particleTexture = new BABYLON.Texture("images/Flare.png", g_scene);
+    particleSystem.emitter = mesh;    
+    particleSystem.minEmitBox = new BABYLON.Vector3(14, 1.25, -.25);    // Starting from
+    particleSystem.maxEmitBox = new BABYLON.Vector3(21, 2.0, .25);     // to...
+    particleSystem.color1 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
+    particleSystem.color2 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
+    particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.0, 0.0);
+    particleSystem.minSize = 0.75;
+    particleSystem.maxSize = 3.75;
+    particleSystem.minLifeTime = 0.0025;
+    particleSystem.maxLifeTime = 0.0125;
+    particleSystem.emitRate = 750;
+    particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
+    particleSystem.direction1 = new BABYLON.Vector3(0, 10, -0); // (width, depth, height)
+    particleSystem.direction2 = new BABYLON.Vector3(0, -10, 0);
+    particleSystem.minAngularSpeed = 0;
+    particleSystem.maxAngularSpeed = Math.PI * 2;
+    particleSystem.targetStopDuration = 0;
+    particleSystem.minEmitPower = 1;
+    particleSystem.maxEmitPower = 3;
+    particleSystem.updateSpeed = 0.005;
+    particleSystem.disposeOnStop = false;
+
+    return particleSystem;
 }
 
-function makeExplodingParticle(x, y, z)
+function makeExplodingAsteriodParticle(i)
 {
-        var fountain = BABYLON.Mesh.CreateSphere("exposion", 1.0, 1.0, g_scene);
-        fountain.position = new BABYLON.Vector3(x, y, z);
-        fountain.isVisible = false;
-        var particleSystem = new BABYLON.ParticleSystem("particles", 1000, g_scene);
-        particleSystem.particleTexture = new BABYLON.Texture("images/Flare.png", g_scene);
-        particleSystem.emitter = fountain;  
-        particleSystem.minEmitBox = new BABYLON.Vector3(-10, -10, -10);    // Starting from
-        particleSystem.maxEmitBox = new BABYLON.Vector3(10, 10, 10);     // to...
-        particleSystem.color1 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
-        particleSystem.color2 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
-        particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.0, 0.0);
-        particleSystem.minSize = 1;
-        particleSystem.maxSize = 50;
-        particleSystem.minLifeTime = 0.2;
-        particleSystem.maxLifeTime = 0.5;
-        particleSystem.emitRate = 500;
-        particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
-        particleSystem.direction1 = new BABYLON.Vector3(-10, -10, -10); // (width, depth, height)
-        particleSystem.direction2 = new BABYLON.Vector3(10, 10, 10);
-        particleSystem.minAngularSpeed = 0;
-        particleSystem.maxAngularSpeed = Math.PI * 2;
-        particleSystem.targetStopDuration = .1;
-        particleSystem.minEmitPower = 10;
-        particleSystem.maxEmitPower = 20;
-        particleSystem.updateSpeed = 0.005;
-        particleSystem.disposeOnStop = true;
-        
-        particleSystem.onDispose = function()
-        {
-            this.emitter.dispose();
-        };
-        
-        particleSystem.start();
+    var fountain = BABYLON.Mesh.CreateSphere("exposion", 1.0, 1.0, g_scene);
+    fountain.position = new BABYLON.Vector3(g_asteroids[i].mesh.position.x, g_asteroids[i].mesh.position.y, g_asteroids[i].mesh.position.z);
+    fountain.isVisible = false;
+    var particleSystem = new BABYLON.ParticleSystem("particles", 1000, g_scene);
+    particleSystem.particleTexture = new BABYLON.Texture("images/Flare.png", g_scene);
+    particleSystem.emitter = fountain;  
+    particleSystem.minEmitBox = new BABYLON.Vector3(-10, -10, -10);    // Starting from
+    particleSystem.maxEmitBox = new BABYLON.Vector3(10, 10, 10);     // to...
+    particleSystem.color1 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
+    particleSystem.color2 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
+    particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.0, 0.0);
+    particleSystem.minSize = 1;
+    particleSystem.maxSize = 50;
+    particleSystem.minLifeTime = 0.2;
+    particleSystem.maxLifeTime = 0.5;
+    particleSystem.emitRate = 500;
+    particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
+    particleSystem.direction1 = new BABYLON.Vector3(-10, -10, -10); // (width, depth, height)
+    particleSystem.direction2 = new BABYLON.Vector3(10, 10, 10);
+    particleSystem.minAngularSpeed = 0;
+    particleSystem.maxAngularSpeed = Math.PI * 2;
+    particleSystem.targetStopDuration = .1;
+    particleSystem.minEmitPower = 10;
+    particleSystem.maxEmitPower = 20;
+    particleSystem.updateSpeed = 0.005;
+    particleSystem.disposeOnStop = true;
+
+    particleSystem.onDispose = function()
+    {
+        this.emitter.dispose();
+    };
+
+    particleSystem.start();
+}
+
+function makeExplodingShipParticle()
+{
+    var fountain = BABYLON.Mesh.CreateSphere("exposion", 1.0, 1.0, g_scene);
+    fountain.position = new BABYLON.Vector3(g_ship.mesh.position.x, g_ship.mesh.position.y, g_ship.mesh.position.z);
+    fountain.isVisible = false;
+    var particleSystem = new BABYLON.ParticleSystem("particles", 1000, g_scene);
+    particleSystem.particleTexture = new BABYLON.Texture("images/Flare.png", g_scene);
+    particleSystem.emitter = fountain;  
+    particleSystem.minEmitBox = new BABYLON.Vector3(-10, -10, -10);    // Starting from
+    particleSystem.maxEmitBox = new BABYLON.Vector3(10, 10, 10);     // to...
+    particleSystem.color1 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
+    particleSystem.color2 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
+    particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.0, 0.0);
+    particleSystem.minSize = 1;
+    particleSystem.maxSize = 75;
+    particleSystem.minLifeTime = 0.2;
+    particleSystem.maxLifeTime = 0.5;
+    particleSystem.emitRate = 1000;
+    particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
+    particleSystem.direction1 = new BABYLON.Vector3(-10, -10, -10); // (width, depth, height)
+    particleSystem.direction2 = new BABYLON.Vector3(10, 10, 10);
+    particleSystem.minAngularSpeed = 0;
+    particleSystem.maxAngularSpeed = Math.PI * 2;
+    particleSystem.targetStopDuration = .1;
+    particleSystem.minEmitPower = 10;
+    particleSystem.maxEmitPower = 20;
+    particleSystem.updateSpeed = 0.005;
+    particleSystem.disposeOnStop = true;
+
+    particleSystem.onDispose = function()
+    {
+        this.emitter.dispose();
+    };
+
+    particleSystem.start();
 }
 
 // Forces javascript to interpret the variable as a number
 function num(number)
 {
     return number - 0;
+}
+
+function rgbToHex(r, g, b)
+{
+    var red = r.toString(16);
+    var green = g.toString(16);
+    var blue = b.toString(16);
+    
+    if(r < 10)
+        red = "0" + red;
+    
+    if(g < 10)
+        green = "0" + green;
+    
+    if(b < 10)
+        blue = "0" + blue;
+
+    return "#" + red + green + blue;
 }

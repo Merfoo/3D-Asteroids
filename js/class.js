@@ -29,7 +29,8 @@ Ship = function(mesh)
     
     this.bMoveForward = false;
     this.killedAsteroids = 0;
-    this.lives = 100;
+    this.startingLives = 100;
+    this.lives = this.startingLives;
     
     this.reset = function()
     {
@@ -49,6 +50,11 @@ Ship = function(mesh)
         this.mesh.position.y = 0;
         this.mesh.position.z = 0;
         this.mesh.rotation = new BABYLON.Vector3(0, 0, 0);
+    };
+    
+    this.getHealthRatio = function()
+    {
+        return this.lives / this.startingLives - 0.0;
     };
 };
 

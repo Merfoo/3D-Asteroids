@@ -7,7 +7,7 @@ html,body,#canvasGame
     overflow: hidden;
 }
 
-#canvasLoading
+#canvasHud
 {
     z-index: 100;
     position: absolute;
@@ -15,15 +15,6 @@ html,body,#canvasGame
     height:100%;
     padding:0;
     margin:0;
-}
-
-#health
-{
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    color: white;
 }
 
 *.unselectable 
