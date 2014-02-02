@@ -339,7 +339,7 @@ function gameLoop()
                     g_lazers.splice(lazerIndex, 1);
                 }
             }
-
+            
             if(g_ship.head.intersectsMesh(g_asteroids[i].mesh, true)) 
             {
                 g_ship.lives--;
@@ -353,7 +353,7 @@ function gameLoop()
             }
         }
     }
-    
+
     updateHud();
 }
 
