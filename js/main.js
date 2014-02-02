@@ -210,10 +210,10 @@ function updateHud()
         g_canvasHud.textAlign = "left";
         g_canvasHud.font = "16px Calibri";
         g_canvasHud.fillText(asteroidKilled, 5, 10);
-
+        
         // Health Bar
-        g_canvasHud.beginPath();
         g_canvasHud.fillStyle = getHealthColor();
+        g_canvasHud.beginPath();
         g_canvasHud.moveTo(x1, y1);     // Top Left
         g_canvasHud.lineTo(x2, y1);     // Top Right
         g_canvasHud.lineTo(x3, y2);     // Bottom Right
@@ -722,13 +722,13 @@ function rgbToHex(r, g, b)
     var green = g.toString(16);
     var blue = b.toString(16);
     
-    if(r < 10)
+    if(red.length < 2)
         red = "0" + red;
     
-    if(g < 10)
+    if(green.length < 2)
         green = "0" + green;
     
-    if(b < 10)
+    if(blue.length < 2)
         blue = "0" + blue;
 
     return "#" + red + green + blue;
