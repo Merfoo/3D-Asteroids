@@ -46,7 +46,7 @@ window.onload = function(){
         g_scene = new BABYLON.Scene(engine);
 
         //Adding of the light on the scene
-        var light0 = new BABYLON.HemisphericLight("Hemi0", new BABYLON.Vector3(0, 1, 0), g_scene);
+        var light0 = new BABYLON.HemisphericLight("Hemi0", new BABYLON.Vector3(1, 1, 1), g_scene);
         light0.diffuse = new BABYLON.Color3(1, 1, 1);
         light0.specular = new BABYLON.Color3(1, 1, 1);
         light0.groundColor = new BABYLON.Color3(0, 0, 0);
@@ -347,6 +347,7 @@ function gameLoop()
                 if(g_ship.lives <= 0)
                 {
                     g_timeGame.stop();
+                    g_ship.mesh._isEnabled = false;
                     makeExplodingShipParticle();
                     g_gameLost = true;
                 }

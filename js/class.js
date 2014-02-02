@@ -50,6 +50,7 @@ Ship = function(mesh)
         this.mesh.position.y = 0;
         this.mesh.position.z = 0;
         this.mesh.rotation = new BABYLON.Vector3(0, 0, 0);
+        this.mesh._isEnabled = true;
     };
     
     this.getHealthRatio = function()
