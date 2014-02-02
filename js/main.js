@@ -37,7 +37,7 @@ window.onload = function(){
         g_canvasHud.canvas.width = window.innerWidth;
         g_canvasHud.canvas.height = window.innerHeight;
         g_canvasHud.textBaseline = "top";
-        progressLoop();
+        updateProgress();
         
         // Babylon
         var engine = new BABYLON.Engine(canvas, true);
@@ -59,9 +59,9 @@ window.onload = function(){
         g_scene.fogDensity = 0.005;
         
         // Make main lazer
-        g_mainLazer = BABYLON.Mesh.CreateCylinder("cylinder", 10, 0.6, 0.6, 6, g_scene, false);
+        g_mainLazer = BABYLON.Mesh.CreateCylinder("cylinder", 50, 0.6, 0.6, 6, g_scene, false);
         g_mainLazer.material = new BABYLON.StandardMaterial("texture", g_scene);
-        g_mainLazer.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+        g_mainLazer.material.diffuseColor = new BABYLON.Color3(.8, .07, .07);
         g_mainLazer.position = new BABYLON.Vector3(100000, 0, 0);
         
         // Load models
@@ -71,7 +71,7 @@ window.onload = function(){
                 g_ship = newMeshes[0]; 
                 g_ship.position = new BABYLON.Vector3(0, 0, 0);
                 g_ship.rotation = new BABYLON.Vector3(0, 0, 0);
-                g_ship = new Ship(g_ship); 
+                g_ship = new Ship(g_ship);
                 g_ship.head = BABYLON.Mesh.CreateBox("head", 1.0, g_scene);
                 g_ship.head.parent = g_ship.mesh;
                 g_ship.head.position.x = -1;
@@ -98,6 +98,7 @@ window.onload = function(){
                 g_camera.target = g_ship.mesh.position;
                 g_camera.setPosition(new BABYLON.Vector3(50, 0, 0));
                 g_progShip = 100;
+                updateProgress();
                 
                 BABYLON.SceneLoader.ImportMesh("asteroid1", "scenes/gilShip/", "scene.babylon", g_scene, 
                     function (newMeshes) 
@@ -109,7 +110,7 @@ window.onload = function(){
                         g_mainAsteroid.scaling.z = .2; 
                         g_progAsteroid = 100;
                         
-                        progressLoop();
+                        updateProgress();
                         initGame();
                         
                         // Once the scene is loaded, just register a render loop to render it
@@ -134,7 +135,7 @@ window.onload = function(){
                         if(e.lengthComputable)
                             g_progAsteroid = (e.loaded * 100 / e.total).toFixed();
 
-                        progressLoop();
+                        updateProgress();
                     }
                 ); 
             },
@@ -143,26 +144,44 @@ window.onload = function(){
                 if(e.lengthComputable)
                     g_progShip = (e.loaded * 100 / e.total).toFixed();
                 
-                progressLoop();
+                updateProgress();
             }
         );
     }
 };
 
-function progressLoop()
+function updateProgress()
 {
-    var loadingText = "NOW LOADING...";
-    var size = { width: g_canvasHud.canvas.width, height: g_canvasHud.canvas.height };
-    var prog = Math.floor((num(g_progShip) + num(g_progAsteroid)) * 100 / 200);
-    
     g_canvasHud.fillStyle = "black";
-    g_canvasHud.fillRect(0, 0, size.width, size.height);
- 
+    g_canvasHud.fillRect(0, 0, g_screen.width, g_screen.height);
+    
+    // Loading text, Percentage
+    var loadingText = "NOW LOADING...";
     g_canvasHud.fillStyle = "white";
-    g_canvasHud.font = "150px Calibri";
-    g_canvasHud.fillText(loadingText, size.width * 0.13, size.height * 0.2);
+    g_canvasHud.font = (g_screen.width / 9.106) + "px Calibri";
+    g_canvasHud.fillText(loadingText, g_screen.width * 0.125, g_screen.height * 0.222);
+    
+    // Percentage
+    var prog = Math.floor((num(g_progShip) + num(g_progAsteroid)) * 100 / 200);
     g_canvasHud.font = "75px Calibri";
-    g_canvasHud.fillText(prog + "%", size.width * 0.75, size.height * 0.5);
+    g_canvasHud.fillText(prog + "%", g_screen.width * 0.75, g_screen.height * 0.75);
+    
+    // Progress bar
+    var bar = { width: g_screen.width * 0.75, height: g_screen.height * 0.05 };
+    var x1 = (g_screen.width / 2) - (bar.width / 2);
+    var y1 = g_screen.height - (bar.height * 1.25);
+    g_canvasHud.strokeStyle = "green";
+    g_canvasHud.fillStyle = "green";
+    g_canvasHud.lineWidth = 2;
+    g_canvasHud.beginPath();
+    g_canvasHud.moveTo(x1, y1);                             // Top Left
+    g_canvasHud.lineTo(x1 + bar.width, y1);                 // Top Right
+    g_canvasHud.lineTo(x1 + bar.width, y1 + bar.height);    // Bottom Right
+    g_canvasHud.lineTo(x1, y1 + bar.height);                // Bottom Left
+    g_canvasHud.lineTo(x1, y1);
+    g_canvasHud.closePath();
+    g_canvasHud.stroke();
+    g_canvasHud.fillRect(x1, y1, bar.width * (prog / 100), bar.height);
 }
 
 function updateHud()
@@ -206,14 +225,18 @@ function updateHud()
     else
     {
         var lostText = "YOU LIVED: " + Math.floor(g_timeGame.get()) + " secs";
-        var replayText = "Press enter to play again";
         g_canvasHud.fillStyle = "white";
         g_canvasHud.textAlign = "center";
-        g_canvasHud.font = "160px Calibri";
+        g_canvasHud.font = (g_screen.width / 8.125) + "px Calibri";
         g_canvasHud.fillText(lostText, g_screen.width / 2, (g_screen.height / 2) - 160);
+        
+        // Play again text
+        var replayText = "Press enter to play again";
         g_canvasHud.textAlign = "right";
         g_canvasHud.font = "20px Calibri";
         g_canvasHud.fillText(replayText, g_screen.width -10, 0);
+        
+        // Asteroid Killed
         g_canvasHud.textAlign = "right";
         g_canvasHud.font = "33px Calibri";
         g_canvasHud.fillText(asteroidKilled, g_screen.width / 2, (g_screen.height / 2) + 10);
@@ -452,9 +475,9 @@ function makeLazer()
     var yShip = g_ship.mesh.position.y;
     var zShip = g_ship.mesh.position.z;
     var headPosition = g_ship.head.getAbsolutePosition();
-    var vX = (headPosition.x - xShip) * 7;
-    var vY = (headPosition.y - yShip) * 7;
-    var vZ = (headPosition.z - zShip) * 7;
+    var vX = (headPosition.x - xShip) * 21;
+    var vY = (headPosition.y - yShip) * 21;
+    var vZ = (headPosition.z - zShip) * 21;
     var posLeft = g_ship.lazerHeadLeft.getAbsolutePosition();
     var posRight = g_ship.lazerHeadRight.getAbsolutePosition();
     
