@@ -7,8 +7,8 @@ var g_timeGame = new Timer();
 var g_timeLazer = new Timer();
 var g_gameLost = false;
 var g_lazerMinTime = 0.5;
-var g_asteroidAmount = 200;
-var g_maxSize = 400;
+var g_asteroidAmount = 333;
+var g_maxSize = 777;
 var g_progShip = 0.0;
 var g_progAsteroid = 0.0;
 var g_music = true;
@@ -263,9 +263,9 @@ function initGame()
             var newMesh = g_mainAsteroid.clone();
 
             newMesh.position = new BABYLON.Vector3(0, 0, 0); 
-            newMesh.scaling.x = (Math.random() * 0.2) + 0.15;
-            newMesh.scaling.y = (Math.random() * 0.2) + 0.15; 
-            newMesh.scaling.z = (Math.random() * 0.2) + 0.15;
+            newMesh.scaling.x = getRandomNumber(450, 1000) / 1000;
+            newMesh.scaling.y = getRandomNumber(450, 1000) / 1000;
+            newMesh.scaling.z = getRandomNumber(450, 1000) / 1000;
 
             var rX = getRandomNumber(-10, 10) / 100;
             var rZ = getRandomNumber(-10, 10) / 100;
@@ -339,7 +339,7 @@ function gameLoop()
                     g_lazers.splice(lazerIndex, 1);
                 }
             }
-            
+
             if(g_ship.head.intersectsMesh(g_asteroids[i].mesh, true)) 
             {
                 g_ship.lives--;
@@ -551,9 +551,9 @@ function resetAsteroid(index)
             break;
     }
     
-    // Const for asteroi velocity
-    var minConst = g_maxSize * 0.4;
-    var maxConst = g_maxSize * 0.7;
+    // Const for asteroid velocity
+    var minConst = g_maxSize * 0.2;
+    var maxConst = g_maxSize * 0.5;
     var shipRadius = 50;
     var newX = g_ship.mesh.position.x + getRandomNumber(-shipRadius, shipRadius);
     var newY = g_ship.mesh.position.y + getRandomNumber(-shipRadius, shipRadius);
@@ -650,8 +650,8 @@ function makeExplodingAsteriodParticle(i)
     particleSystem.color1 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
     particleSystem.color2 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
     particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.0, 0.0);
-    particleSystem.minSize = 1;
-    particleSystem.maxSize = 50;
+    particleSystem.minSize = 10;
+    particleSystem.maxSize = 70;
     particleSystem.minLifeTime = 0.2;
     particleSystem.maxLifeTime = 0.5;
     particleSystem.emitRate = 500;
@@ -661,8 +661,8 @@ function makeExplodingAsteriodParticle(i)
     particleSystem.minAngularSpeed = 0;
     particleSystem.maxAngularSpeed = Math.PI * 2;
     particleSystem.targetStopDuration = .1;
-    particleSystem.minEmitPower = 10;
-    particleSystem.maxEmitPower = 20;
+    particleSystem.minEmitPower = 20;
+    particleSystem.maxEmitPower = 30;
     particleSystem.updateSpeed = 0.005;
     particleSystem.disposeOnStop = true;
 
