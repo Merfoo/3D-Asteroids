@@ -8,7 +8,7 @@ var g_timeLazer = new Timer();
 var g_gameLost = false;
 var g_lazerMinTime = 0.5;
 var g_asteroidAmount = 333;
-var g_maxSize = 777;
+var g_maxSize = 1000;
 var g_progShip = 0.0;
 var g_progAsteroid = 0.0;
 var g_music = true;
@@ -342,7 +342,7 @@ function gameLoop()
 
             if(g_ship.head.intersectsMesh(g_asteroids[i].mesh, true)) 
             {
-                g_ship.lives--;
+                g_ship.lives -= 7;
 
                 if(g_ship.lives <= 0)
                 {
@@ -650,8 +650,8 @@ function makeExplodingAsteriodParticle(i)
     particleSystem.color1 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
     particleSystem.color2 = new BABYLON.Color4(0.9, 0.3, 0.2, 1.0);
     particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.0, 0.0);
-    particleSystem.minSize = 10;
-    particleSystem.maxSize = 70;
+    particleSystem.minSize = 1;
+    particleSystem.maxSize = 100;
     particleSystem.minLifeTime = 0.2;
     particleSystem.maxLifeTime = 0.5;
     particleSystem.emitRate = 500;
